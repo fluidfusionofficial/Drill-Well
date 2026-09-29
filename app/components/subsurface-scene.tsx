@@ -25,7 +25,8 @@ const lithologyTint: Record<LithologyKey, string> = {
   evaporite: "#b6a7c2",
   basement: "#78808c",
 };
-const referenceEvents = wellEvents.filter((event) => event.wellId === "WX-07");
+const referenceWellId = "WX-07";
+const referenceEvents = wellEvents.filter((event) => event.wellId === referenceWellId);
 const wellboreZ = 1.65;
 const standLengthMeters = 27;
 const bitDrop = 0.08;
@@ -1381,7 +1382,14 @@ export function SubsurfaceScene({ well, depth, isPlaying, verticalExaggeration, 
           <div className="px-3 pb-2.5 pt-1.5">
             <div className="text-[11px] font-semibold">{well.id} · vertical wellbore</div>
             <div className="mt-1 flex items-center gap-1 text-[9px] text-slate-300"><Waves className="h-3 w-3 text-cyan-300" />{Math.round(depth).toLocaleString()} m MD · annular fluid envelope</div>
-            <div className="mt-1 text-[9px] text-slate-300">Reference pick at cursor: {referenceFormation?.name ?? "not covered by WX-07 picks"} <span className="text-teal-200">(WX-07)</span></div>
+            <div className="mt-1 text-[9px] text-slate-300">
+              {well.id === referenceWellId ? "Formation pick at cursor" : `Reference pick at cursor (${referenceWellId} offset)`}: {referenceFormation?.name ?? `not covered by ${referenceWellId} picks`}
+            </div>
+            {well.id !== referenceWellId && (
+              <div className="mt-1 text-[8px] text-amber-200/90">
+                Stratigraphy and events shown belong to {referenceWellId}. No source-backed picks exist for {well.id} in this dataset.
+              </div>
+            )}
             <div className="mt-1 text-[8px] text-slate-300">Bit position · {Math.round(depth).toLocaleString()} m MD</div>
             <div className="mt-1 text-[8px] text-slate-400">Rig/BHA schematic: derrick, top drive, mud pits, casing envelope.</div>
             <div className="mt-1 text-[8px] text-amber-200">Cutaway pipe trace is offset for visibility; BHA/rig are schematic, dimensions not to scale.</div>

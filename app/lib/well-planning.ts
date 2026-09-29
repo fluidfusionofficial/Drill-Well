@@ -1,5 +1,5 @@
-import { formationIntervals, wells } from "@/lib/nwis-data";
-import type { Well } from "@/lib/nwis-data";
+import { formationIntervals, wells } from "./nwis-data.ts";
+import type { Well } from "./nwis-data.ts";
 
 export const EARTH_RADIUS_KM = 6371;
 
@@ -21,11 +21,14 @@ export function bearingDeg(from: LatLng, to: LatLng) {
   return (Math.atan2(y, x) * 180) / Math.PI + 360 % 360;
 }
 
-/** Offset a coordinate by a distance and bearing (survey maths used for site selection). */
+/** Offset a coordinate by a distance (km) and direction. Coordinates stay in degrees. */
 export function projectPoint(origin: LatLng, distanceKmEast: number, distanceKmNorth: number): LatLng {
-  const lat = origin.lat + (distanceKmNorth / 110.574) * (Math.PI / 180);
-  const lng = origin.lng + (distanceKmEast / (111.32 * Math.cos((origin.lat * Math.PI) / 180))) * (Math.PI / 180);
-  return { lat, lng };
+  const kmPerDegreeLat = 110.574;
+  const kmPerDegreeLng = 111.32 * Math.cos((origin.lat * Math.PI) / 180);
+  return {
+    lat: origin.lat + distanceKmNorth / kmPerDegreeLat,
+    lng: origin.lng + distanceKmEast / kmPerDegreeLng,
+  };
 }
 
 export type DirectionalPlan = {

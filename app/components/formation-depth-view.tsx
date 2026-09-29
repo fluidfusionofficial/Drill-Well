@@ -9,6 +9,7 @@ import type { FormationInterval } from "@/lib/nwis-data";
 
 const maxDepth = 1200;
 const referenceEvents = wellEvents.filter((event) => event.wellId === "WX-07");
+const referenceWellId = "WX-07";
 
 type LithologyKey = "alluvium" | "sandstone" | "mixed" | "carbonate" | "claystone" | "evaporite" | "basement";
 
@@ -198,6 +199,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
 
   const cursorPct = Math.min(100, (currentDepth / maxDepth) * 100);
   const tdPct = Math.min(100, (selectedWell.actualDepth / maxDepth) * 100);
+  const isReferenceOwner = selectedWell.id === referenceWellId;
   const activeFormation = formationIntervals.find((interval) => currentDepth >= interval.top && currentDepth < interval.bottom);
   const visibleTracks = tracks.filter((track) => !hiddenTracks.has(track.key));
 
@@ -234,6 +236,14 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
         <div className="flex min-w-0 flex-1 items-center gap-1 border-r border-slate-300 px-1.5">
           <Layers3 className={`${compact ? "h-2.5 w-2.5" : "h-3.5 w-3.5"} shrink-0 text-[#4f7a6b]`} />
           <span className={`${textXs} truncate font-bold uppercase tracking-[0.08em] text-slate-700`}>Lithology</span>
+          {!isReferenceOwner && (
+            <span
+              className={`${textSm} shrink-0 rounded bg-slate-700 px-1 font-bold uppercase tracking-wide text-white`}
+              title={`Formation picks in this dataset belong to ${referenceWellId}. They are shown as offset reference and are not picks of ${selectedWell.id}.`}
+            >
+              {referenceWellId} ref
+            </span>
+          )}
           {hiddenClasses.size > 0 && (
             <span className={`${textSm} shrink-0 rounded bg-amber-500/90 px-1 font-bold uppercase tracking-wide text-white`}>
               {hiddenClasses.size} class{hiddenClasses.size === 1 ? "" : "es"} muted
@@ -262,7 +272,12 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
           );
         })}
         <div className={`flex shrink-0 items-center justify-between gap-1 border-l border-slate-300 px-1 ${eventsWidth}`}>
-          <span className={`${textSm} shrink-0 font-bold uppercase tracking-[0.06em] text-slate-600`}>Events</span>
+          <span
+            className={`${textSm} shrink-0 font-bold uppercase tracking-[0.06em] text-slate-600`}
+            title={`Events shown are those recorded on ${referenceWellId}. No events are recorded for ${selectedWell.id} in this dataset.`}
+          >
+            Events · {referenceWellId}
+          </span>
           <span className={`shrink-0 rounded-sm bg-sky-900 px-1 font-bold tabular-nums leading-none text-white ${compact ? "text-[7px]" : "text-[10px]"}`} title="Shared depth cursor">
             {currentDepth} m
           </span>
