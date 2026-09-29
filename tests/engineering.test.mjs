@@ -298,3 +298,66 @@ test("coordinates are declared as fixture-derived, never surveyed", async () => 
   }
   assert.ok(COORDINATE_DISCLAIMER.toLowerCase().includes("not a surveyed position"));
 });
+
+test("alerts are sorted by severity then proximity to active depth", () => {
+  const active = wells.find((well) => well.id === "WX-11") ?? currentWell;
+  const alerts = evaluateHistoricalContext(active, 510, { approachWindowM: 100, contextRadiusKm: 25, requireFormationMatch: false });
+  if (alerts.length >= 2) {
+    const order = { High: 0, Medium: 1, Low: 2, Critical: 0 };
+    for (let i = 1; i < alerts.length; i++) {
+      const prev = alerts[i - 1];
+      const curr = alerts[i];
+      const prevDist = Math.min(...prev.events.map((e) => Math.abs(e.depth - 510)));
+      const currDist = Math.min(...curr.events.map((e) => Math.abs(e.depth - 510)));
+      if (order[prev.severity] === order[curr.severity]) {
+        assert.ok(prevDist <= currDist, `Closer alert at ${prevDist}m should precede ${currDist}m`);
+      } else {
+        assert.ok(order[prev.severity] <= order[curr.severity], "Higher severity alert must come first");
+      }
+    }
+  }
+});
+
+test("WX-11 at 470 m shows Upper Carbonate events as ahead", () => {
+  const active = wells.find((well) => well.id === "WX-11") ?? currentWell;
+  const alerts = evaluateHistoricalContext(active, 470, { approachWindowM: 100, contextRadiusKm: 25, requireFormationMatch: false });
+  assert.ok(alerts.length > 0, "should have alerts at 470m");
+  for (const alert of alerts) {
+    assert.equal(alert.state, "ahead", "events at 507-544m must be ahead of 470m bit");
+    assert.ok(alert.metresAhead > 0, "metresAhead must be positive");
+  }
+});
+
+test("WX-11 at 515 m shows Upper Carbonate 507 m cluster as in-zone", () => {
+  const active = wells.find((well) => well.id === "WX-11") ?? currentWell;
+  const alerts = evaluateHistoricalContext(active, 515, { approachWindowM: 100, contextRadiusKm: 25, requireFormationMatch: false });
+  const inZone = alerts.find((a) => a.state === "in-zone");
+  assert.ok(inZone, "at 515 m, 507 m cluster should be in-zone (within 25m)");
+});
+
+test("WX-11 at 842 m shows all Upper Carbonate events as passed", () => {
+  const active = wells.find((well) => well.id === "WX-11") ?? currentWell;
+  const alerts = evaluateHistoricalContext(active, 842, { approachWindowM: 100, contextRadiusKm: 25, requireFormationMatch: false, includePassed: true });
+  for (const alert of alerts) {
+    if (alert.events.some((e) => e.depth <= 600)) {
+      assert.equal(alert.state, "passed", "events behind the bit at 842m must be passed");
+      assert.ok(alert.metresAhead < 0, "metresAhead must be negative");
+    }
+  }
+});
+
+test("extended demonstration dataset has 12 simulated wells within 30 km with valid provenance", async () => {
+  const { simulatedWells, simulatedEvents } = await import("../app/lib/fixtures/extended-dataset.ts");
+  assert.equal(simulatedWells.length, 12, "must have 12 simulated offset wells");
+  for (const well of simulatedWells) {
+    assert.equal(well.origin, "simulated");
+    assert.ok(well.distanceFromWx11Km <= 30, `Well ${well.id} must be within 30 km`);
+  }
+  assert.ok(simulatedEvents.length >= 40, "must have at least 40 simulated events");
+  for (const ev of simulatedEvents) {
+    assert.equal(ev.origin, "simulated");
+    assert.equal(ev.provenance.extractionMethod, "simulated");
+  }
+});
+
+

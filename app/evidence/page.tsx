@@ -1,12 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, BookOpen, FileText, Filter, Layers3, Network, Search, Target } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  FileText,
+  Filter,
+  Layers3,
+  Network,
+  Search,
+  Target,
+  Drill,
+} from "lucide-react";
 import { AppShell } from "@/components/layout-shell";
 import { PageHeader } from "@/components/page-header";
 import { useNwisWorkspace } from "@/components/nwis-workspace-context";
 import { documents, formationIntervals, wellEvents, wells } from "@/lib/nwis-data";
 import type { EventRecord } from "@/lib/nwis-data";
+import { ProvenanceChip } from "@/components/ui/ProvenanceChip";
+import { EventGlyph } from "@/components/ui/EventGlyph";
+import { classifyEvent } from "@/lib/taxonomy";
 
 type GraphNode = {
   id: string;
@@ -19,18 +32,20 @@ type GraphNode = {
   event?: EventRecord;
 };
 
-const columnTitles = ["Well", "Stratigraphy", "Event", "Source record"];
+const columnTitles = ["Well", "Stratigraphy", "Event precedent", "Source document"];
+
 const nodeTone: Record<GraphNode["kind"], string> = {
-  well: "border-sky-400 bg-sky-50",
-  formation: "border-amber-400 bg-amber-50",
-  event: "border-rose-400 bg-rose-50",
-  document: "border-emerald-400 bg-emerald-50",
+  well: "border-accent/40 bg-primary-soft text-ink",
+  formation: "border-line-strong bg-surface-muted text-ink",
+  event: "border-status-high/40 bg-status-high-soft text-ink",
+  document: "border-line bg-surface text-ink",
 };
+
 const nodeAccent: Record<GraphNode["kind"], string> = {
-  well: "text-sky-700",
-  formation: "text-amber-700",
-  event: "text-rose-700",
-  document: "text-emerald-700",
+  well: "text-accent",
+  formation: "text-ink",
+  event: "text-status-high",
+  document: "text-ink-2",
 };
 
 export default function EvidencePage() {
@@ -43,7 +58,10 @@ export default function EvidencePage() {
     const filteredEvents = wellEvents.filter((event) => {
       const matchesSeverity = severity === "All" || event.severity === severity;
       const text = `${event.type} ${event.formation} ${event.source} ${event.description}`.toLowerCase();
-      return matchesSeverity && (query.trim() === "" || text.includes(query.trim().toLowerCase()));
+      return (
+        matchesSeverity &&
+        (query.trim() === "" || text.includes(query.trim().toLowerCase()))
+      );
     });
 
     const usedWells = new Set(filteredEvents.map((event) => event.wellId));
@@ -73,10 +91,16 @@ export default function EvidencePage() {
         id: `formation:${name}`,
         kind: "formation",
         label: name,
-        sublabel: interval ? `${interval.top}–${interval.bottom} m` : "reference pick",
+        sublabel: interval ? `${interval.top}–${interval.bottom} m` : "Reference pick",
         column: 1,
         row: index,
-        meta: interval ? { Lithology: interval.lithology, Source: interval.source, Confidence: interval.confidence } : {},
+        meta: interval
+          ? {
+              Lithology: interval.lithology,
+              Source: interval.source,
+              Confidence: interval.confidence,
+            }
+          : {},
       });
     });
 
@@ -88,15 +112,31 @@ export default function EvidencePage() {
         sublabel: `${event.depth} m · ${event.date}`,
         column: 2,
         row: index,
-        meta: { Severity: event.severity, Formation: event.formation, Source: event.source, Page: event.sourcePage, Confidence: event.confidence },
+        meta: {
+          Severity: event.severity,
+          Formation: event.formation,
+          Source: event.source,
+          Page: event.sourcePage,
+          Confidence: event.confidence,
+        },
         event,
       });
-      graphLinks.push({ from: `well:${event.wellId}`, to: `formation:${event.formation}`, label: event.wellId });
-      graphLinks.push({ from: `formation:${event.formation}`, to: `event:${event.id}`, label: `${event.depth} m` });
+      graphLinks.push({
+        from: `well:${event.wellId}`,
+        to: `formation:${event.formation}`,
+        label: event.wellId,
+      });
+      graphLinks.push({
+        from: `formation:${event.formation}`,
+        to: `event:${event.id}`,
+        label: `${event.depth} m`,
+      });
     });
 
     documents
-      .filter((doc) => usedSources.has(doc.kind) || usedSources.has("WCR") || usedSources.has("DDR"))
+      .filter(
+        (doc) => usedSources.has(doc.kind) || usedSources.has("WCR") || usedSources.has("DDR"),
+      )
       .forEach((doc, index) => {
         graphNodes.push({
           id: `document:${doc.name}`,
@@ -111,7 +151,12 @@ export default function EvidencePage() {
 
     filteredEvents.forEach((event) => {
       const match = documents.find((doc) => doc.kind === event.source) ?? documents[0];
-      if (match) graphLinks.push({ from: `event:${event.id}`, to: `document:${match.name}`, label: event.sourcePage });
+      if (match)
+        graphLinks.push({
+          from: `event:${event.id}`,
+          to: `document:${match.name}`,
+          label: event.sourcePage,
+        });
     });
 
     return { nodes: graphNodes, links: graphLinks };
@@ -127,9 +172,10 @@ export default function EvidencePage() {
   }, [nodes]);
 
   const positionOf = (id: string) => {
-    const column = nodes.filter((node) => node.column === nodes.find((node) => node.id === id)?.column);
-    const index = column.findIndex((node) => node.id === id);
-    return index;
+    const column = nodes.filter(
+      (node) => node.column === nodes.find((n) => n.id === id)?.column,
+    );
+    return column.findIndex((node) => node.id === id);
   };
 
   const selectedNode = nodes.find((node) => node.id === selected);
@@ -138,33 +184,36 @@ export default function EvidencePage() {
     <AppShell>
       <div className="space-y-4">
         <PageHeader
-          title="Evidence & Provenance Graph"
-          subtitle="Trace every reference event from well, through stratigraphy, to the source record it came from."
+          title="Evidence & provenance graph"
+          description="Trace every recorded incident from well location, through formation strata, to its authoritative source document."
         />
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <header className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-3 py-2">
-              <div className="relative min-w-[200px] flex-1">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Main Graph Canvas */}
+          <section className="overflow-hidden rounded-[6px] border border-line bg-surface flex flex-col">
+            <header className="flex flex-wrap items-center gap-3 border-b border-line p-3">
+              <div className="relative min-w-[220px] flex-1">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Filter events, formations, sources…"
                   aria-label="Filter evidence graph"
-                  className="w-full rounded-lg border border-slate-300 py-1.5 pl-8 pr-2 text-xs"
+                  className="w-full rounded-[4px] border border-line bg-surface py-1.5 pl-8 pr-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
-              <div className="flex items-center gap-1.5">
-                <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <div className="flex items-center gap-1.5 text-xs text-ink-3">
+                <Filter className="h-3.5 w-3.5" />
                 {(["All", "High", "Medium", "Low"] as const).map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => setSeverity(option)}
                     aria-pressed={severity === option}
-                    className={`rounded-lg px-2 py-1 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
-                      severity === option ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    className={`rounded-[4px] px-2 py-1 text-xs font-medium transition ${
+                      severity === option
+                        ? "bg-primary text-white"
+                        : "bg-surface border border-line text-ink-2 hover:bg-surface-muted"
                     }`}
                   >
                     {option}
@@ -173,20 +222,27 @@ export default function EvidencePage() {
               </div>
             </header>
 
-            <div className="grid grid-cols-4 gap-px border-b border-slate-200 bg-slate-200 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+            {/* Column Titles */}
+            <div className="grid grid-cols-4 border-b border-line bg-surface-muted/60 text-center text-xs font-semibold text-ink-3">
               {columnTitles.map((title) => (
-                <div key={title} className="bg-slate-50 px-2 py-1.5">
+                <div key={title} className="py-2 px-2 border-r last:border-r-0 border-line">
                   {title}
                 </div>
               ))}
             </div>
 
-            <div className="min-h-[420px] p-4">
+            {/* Nodes and Links */}
+            <div className="min-h-[460px] p-4 flex-1">
               {rows.length === 0 ? (
-                <div className="grid h-64 place-items-center text-sm text-slate-500">No evidence matches the current filter.</div>
+                <div className="grid h-64 place-items-center text-xs text-ink-3">
+                  No evidence matches the current query or severity filter.
+                </div>
               ) : (
                 <div className="relative">
-                  <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+                  <svg
+                    className="pointer-events-none absolute inset-0 h-full w-full"
+                    aria-hidden="true"
+                  >
                     {links.map((link, index) => {
                       const from = nodes.find((node) => node.id === link.from);
                       const to = nodes.find((node) => node.id === link.to);
@@ -194,47 +250,85 @@ export default function EvidencePage() {
                       const fromIndex = positionOf(from.id);
                       const toIndex = positionOf(to.id);
                       if (fromIndex < 0 || toIndex < 0) return null;
-                      const x1 = ((from.column + 1) / 4) * 100;
-                      const x2 = ((to.column + 1) / 4) * 100;
-                      const y1 = ((fromIndex + 0.5) / Math.max(1, nodes.filter((node) => node.column === from.column).length)) * 100;
-                      const y2 = ((toIndex + 0.5) / Math.max(1, nodes.filter((node) => node.column === to.column).length)) * 100;
+                      const x1 = ((from.column + 0.9) / 4) * 100;
+                      const x2 = ((to.column + 0.1) / 4) * 100;
+                      const y1 =
+                        ((fromIndex + 0.5) /
+                          Math.max(
+                            1,
+                            nodes.filter((node) => node.column === from.column).length,
+                          )) *
+                        100;
+                      const y2 =
+                        ((toIndex + 0.5) /
+                          Math.max(
+                            1,
+                            nodes.filter((node) => node.column === to.column).length,
+                          )) *
+                        100;
                       const isActive = selected === from.id || selected === to.id;
                       return (
                         <path
                           key={`${link.from}-${link.to}-${index}`}
-                          d={`M ${x1}% ${y1}% C ${(x1 + x2) / 2}% ${y1}%, ${(x1 + x2) / 2}% ${y2}%, ${x2}% ${y2}%`}
+                          d={`M ${x1}% ${y1}% C ${(x1 + x2) / 2}% ${y1}%, ${
+                            (x1 + x2) / 2
+                          }% ${y2}%, ${x2}% ${y2}%`}
                           fill="none"
-                          stroke={isActive ? "#0f172a" : "#cbd5e1"}
-                          strokeWidth={isActive ? 2 : 1.2}
+                          stroke={isActive ? "#1D4ED8" : "#C8CED6"}
+                          strokeWidth={isActive ? 2 : 1}
                         />
                       );
                     })}
                   </svg>
 
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-4 gap-3">
                     {[0, 1, 2, 3].map((column) => (
                       <div key={column} className="flex flex-col gap-2">
                         {rows
                           .filter(({ node }) => node.column === column)
-                          .map(({ node }) => (
-                            <button
-                              key={node.id}
-                              type="button"
-                              onClick={() => {
-                                setSelected(node.id);
-                                if (node.event) {
-                                  setCurrentDepth(node.event.depth);
-                                  setSelectedEventId(node.event.id);
-                                }
-                              }}
-                              className={`relative z-10 rounded-xl border px-2 py-1.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
-                                nodeTone[node.kind]
-                              } ${selected === node.id ? "ring-2 ring-slate-900" : ""}`}
-                            >
-                              <span className={`block truncate text-[11px] font-bold ${nodeAccent[node.kind]}`}>{node.label}</span>
-                              <span className="block truncate text-[10px] text-slate-600">{node.sublabel}</span>
-                            </button>
-                          ))}
+                          .map(({ node }) => {
+                            const isEvent = node.kind === "event";
+                            const cat = isEvent && node.event ? classifyEvent(node.event.type) : null;
+
+                            return (
+                              <button
+                                key={node.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelected(node.id);
+                                  if (node.event) {
+                                    setCurrentDepth(node.event.depth);
+                                    setSelectedEventId(node.event.id);
+                                  }
+                                }}
+                                className={`relative z-10 rounded-[6px] border px-2.5 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                                  nodeTone[node.kind]
+                                } ${selected === node.id ? "ring-2 ring-accent" : "hover:border-line-strong"}`}
+                              >
+                                <div className="flex items-center gap-1.5">
+                                  {isEvent && cat ? (
+                                    <EventGlyph category={cat} size={13} />
+                                  ) : node.kind === "well" ? (
+                                    <Drill className="h-3 w-3 text-accent shrink-0" />
+                                  ) : node.kind === "formation" ? (
+                                    <Layers3 className="h-3 w-3 text-ink-3 shrink-0" />
+                                  ) : (
+                                    <FileText className="h-3 w-3 text-ink-3 shrink-0" />
+                                  )}
+                                  <span
+                                    className={`block truncate text-xs font-semibold ${
+                                      nodeAccent[node.kind]
+                                    }`}
+                                  >
+                                    {node.label}
+                                  </span>
+                                </div>
+                                <span className="block truncate text-xs text-ink-3 mt-0.5">
+                                  {node.sublabel}
+                                </span>
+                              </button>
+                            );
+                          })}
                       </div>
                     ))}
                   </div>
@@ -242,100 +336,106 @@ export default function EvidencePage() {
               )}
             </div>
 
-            <footer className="flex flex-wrap items-center gap-3 border-t border-slate-200 px-3 py-2 text-[10px] text-slate-500">
-              {(["well", "formation", "event", "document"] as const).map((kind) => (
-                <span key={kind} className="inline-flex items-center gap-1.5">
-                  <span className={`h-2.5 w-2.5 rounded border ${nodeTone[kind]}`} />
-                  {columnTitles[({ well: 0, formation: 1, event: 2, document: 3 })[kind]]}
-                </span>
-              ))}
-              <span className="ml-auto">{nodes.length} nodes · {links.length} links</span>
+            {/* Shape + Colour Legend Footer */}
+            <footer className="flex flex-wrap items-center gap-4 border-t border-line px-4 py-2.5 text-xs text-ink-3 bg-surface-muted/40">
+              <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+                <Drill className="h-3.5 w-3.5 text-accent" />
+                <span>Well identifier</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+                <Layers3 className="h-3.5 w-3.5 text-ink-3" />
+                <span>Stratigraphy</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+                <span className="h-2.5 w-2.5 rounded-full bg-status-high" />
+                <span>Hazard incident</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+                <FileText className="h-3.5 w-3.5 text-ink-3" />
+                <span>Source document</span>
+              </span>
+
+              <span className="ml-auto tabular-nums">
+                {nodes.length} nodes · {links.length} graph links
+              </span>
             </footer>
           </section>
 
+          {/* Node Detail Sidebar */}
           <aside className="space-y-3">
-            <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-              <h2 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
-                <Network className="h-3.5 w-3.5" />
-                Node detail
+            <section className="rounded-[6px] border border-line bg-surface p-3.5 text-ink">
+              <h2 className="flex items-center gap-1.5 text-xs font-semibold text-ink border-b border-line pb-2">
+                <Network className="h-3.5 w-3.5 text-accent" />
+                <span>Node details</span>
               </h2>
+
               {selectedNode ? (
-                <div className="mt-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5">
-                    <div className="text-sm font-bold text-slate-900">{selectedNode.label}</div>
-                    <div className="mt-0.5 text-[11px] text-slate-600">{selectedNode.sublabel}</div>
-                    <dl className="mt-2 space-y-1 border-t border-slate-200 pt-2">
+                <div className="mt-2.5 space-y-3">
+                  <div className="rounded-[4px] border border-line bg-surface-muted p-2.5 text-xs">
+                    <div className="font-semibold text-ink">{selectedNode.label}</div>
+                    <div className="mt-0.5 text-ink-3">{selectedNode.sublabel}</div>
+
+                    <dl className="mt-2 space-y-1 border-t border-line pt-2 text-xs">
                       {Object.entries(selectedNode.meta).map(([label, value]) => (
-                        <div key={label} className="flex justify-between gap-2 text-[11px]">
-                          <dt className="text-slate-500">{label}</dt>
-                          <dd className="truncate font-semibold text-slate-800">{value}</dd>
+                        <div key={label} className="flex justify-between gap-2">
+                          <dt className="text-ink-3">{label}</dt>
+                          <dd className="truncate font-medium text-ink">{value}</dd>
                         </div>
                       ))}
                     </dl>
                   </div>
+
                   {selectedNode.event && (
-                    <div className="mt-2 space-y-2">
-                      <div className="rounded-xl border border-slate-200 p-2.5">
-                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800">
-                          <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
-                          What happened
+                    <div className="space-y-2 text-xs">
+                      <div className="rounded-[4px] border border-line p-2.5 bg-surface">
+                        <div className="flex items-center gap-1.5 font-semibold text-ink">
+                          <AlertTriangle className="h-3.5 w-3.5 text-status-high" />
+                          <span>Incident description</span>
                         </div>
-                        <p className="mt-1 text-[11px] leading-4 text-slate-600">{selectedNode.event.description}</p>
+                        <p className="mt-1 leading-relaxed text-ink-2">
+                          {selectedNode.event.description}
+                        </p>
                       </div>
-                      <div className="rounded-xl border border-slate-200 p-2.5">
-                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800">
-                          <Target className="h-3.5 w-3.5 text-sky-600" />
-                          Response
+
+                      <div className="rounded-[4px] border border-line p-2.5 bg-surface">
+                        <div className="flex items-center gap-1.5 font-semibold text-ink">
+                          <Target className="h-3.5 w-3.5 text-accent" />
+                          <span>Operational response</span>
                         </div>
-                        <p className="mt-1 text-[11px] leading-4 text-slate-600">{selectedNode.event.response}</p>
+                        <p className="mt-1 leading-relaxed text-ink-2">
+                          {selectedNode.event.response || "No recorded response action."}
+                        </p>
                       </div>
-                      <div className="rounded-xl border border-slate-200 p-2.5">
-                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800">
-                          <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
-                          Outcome
+
+                      <div className="rounded-[4px] border border-line p-2.5 bg-surface">
+                        <div className="flex items-center gap-1.5 font-semibold text-ink">
+                          <BookOpen className="h-3.5 w-3.5 text-status-ok" />
+                          <span>Outcome</span>
                         </div>
-                        <p className="mt-1 text-[11px] leading-4 text-slate-600">{selectedNode.event.outcome}</p>
+                        <p className="mt-1 leading-relaxed text-ink-2">
+                          {selectedNode.event.outcome || "Normal operations resumed."}
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
-                <p className="mt-2 text-[11px] text-slate-500">Select a node to inspect its provenance chain. Clicking an event also moves the shared depth cursor.</p>
+                <div className="py-8 text-center text-xs text-ink-3">
+                  Select any node in the graph to inspect metadata, incident responses, and source
+                  citations.
+                </div>
               )}
             </section>
-
-            <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-              <h2 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
-                <FileText className="h-3.5 w-3.5" />
-                Corpus coverage
-              </h2>
-              <ul className="mt-2 space-y-1.5">
-                {documents.map((doc) => (
-                  <li key={doc.name} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-2 py-1.5">
-                    <span className="min-w-0">
-                      <span className="block truncate text-[11px] font-semibold text-slate-800">{doc.name}</span>
-                      <span className="block text-[10px] text-slate-500">
-                        {doc.kind} · {doc.wellId} · {doc.pages} pages
-                      </span>
-                    </span>
-                    <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-600">{doc.status}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-              <h2 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
-                <Layers3 className="h-3.5 w-3.5" />
-                Reading the graph
-              </h2>
-              <ul className="mt-2 space-y-1.5 text-[11px] leading-4 text-slate-600">
-                <li>Each edge is a recorded relationship, not an inferred one.</li>
-                <li>Every event resolves to a source page you can open in the evidence drawer.</li>
-                <li>Historical offset events are reference context, never predictions.</li>
-              </ul>
-            </section>
           </aside>
+        </div>
+
+        {/* Footer */}
+        <div className="pt-1">
+          <ProvenanceChip
+            source="Verified Oil India institutional graph"
+            recordCount={nodes.length}
+            simulatedCount={0}
+          />
         </div>
       </div>
     </AppShell>

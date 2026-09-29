@@ -1355,50 +1355,69 @@ export function SubsurfaceScene({ well, depth, isPlaying, verticalExaggeration, 
 
   return (
     <div className="relative h-full min-h-[330px] w-full overflow-hidden bg-[#101e25]">
-      <canvas ref={canvasRef} aria-label={`Interactive schematic subsurface scene for ${well.id}, showing WX-07 reference formation intervals`} className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing" />
+      <canvas
+        ref={canvasRef}
+        aria-label={`Interactive schematic subsurface scene for ${well.id}, showing WX-07 reference formation intervals`}
+        className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
+      />
       {!webglAvailable && (
-        <div role="status" className="absolute inset-0 grid place-items-center bg-[#101e25] px-6 text-center text-sm text-slate-200">
+        <div role="status" className="absolute inset-0 grid place-items-center bg-[#101e25] px-6 text-center text-sm text-ink-3">
           This browser does not support WebGL. Use the depth section view to inspect the reference formation intervals.
         </div>
       )}
 
-      <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[230px] rounded-md border border-white/10 bg-[#101e25]/85 text-white shadow-lg backdrop-blur">
-        <div className="flex items-center justify-between gap-2 px-3 pt-2.5">
+      {/* Schematic panel (left) */}
+      <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[270px] rounded-[6px] border border-line bg-surface text-ink shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+        <div className="flex items-center justify-between gap-2 p-2.5">
           <button
             type="button"
             onClick={() => setPanelOpen((open) => !open)}
             aria-expanded={panelOpen}
-            title={panelOpen ? "Shrink panel to see more of the 3D structure" : "Expand schematic details"}
-            className="pointer-events-auto flex min-w-0 flex-1 items-center gap-1.5 text-left text-[9px] font-semibold uppercase tracking-[0.15em] text-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            title={panelOpen ? "Collapse details" : "Expand schematic details"}
+            className="pointer-events-auto flex min-w-0 flex-1 items-center gap-1.5 text-left text-xs font-semibold text-ink hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <ChevronRight className={`h-3 w-3 shrink-0 transition-transform ${panelOpen ? "rotate-90" : ""}`} />
-            <span className="truncate">Schematic subsurface view</span>
+            <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition-transform ${panelOpen ? "rotate-90" : ""}`} />
+            <span className="truncate">Subsurface schematic</span>
           </button>
-          <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[8px] font-semibold tabular-nums text-slate-200">
-            {Math.round(depth).toLocaleString()} m
+          <span className="shrink-0 rounded-[4px] bg-surface-muted border border-line px-1.5 py-0.5 text-xs font-medium tabular-nums text-ink-2">
+            {Math.round(depth).toLocaleString("en-IN")} m
           </span>
         </div>
+
         {panelOpen && (
-          <div className="px-3 pb-2.5 pt-1.5">
-            <div className="text-[11px] font-semibold">{well.id} · vertical wellbore</div>
-            <div className="mt-1 flex items-center gap-1 text-[9px] text-slate-300"><Waves className="h-3 w-3 text-cyan-300" />{Math.round(depth).toLocaleString()} m MD · annular fluid envelope</div>
-            <div className="mt-1 text-[9px] text-slate-300">
-              {well.id === referenceWellId ? "Formation pick at cursor" : `Reference pick at cursor (${referenceWellId} offset)`}: {referenceFormation?.name ?? `not covered by ${referenceWellId} picks`}
+          <div className="border-t border-line px-3 pb-3 pt-2 space-y-2 pointer-events-auto">
+            <div className="text-xs font-semibold text-ink">{well.id} · Vertical wellbore</div>
+            <div className="flex items-center gap-1 text-xs text-ink-2">
+              <Waves className="h-3.5 w-3.5 text-accent shrink-0" />
+              <span>{Math.round(depth).toLocaleString("en-IN")} m MD · Annular fluid</span>
             </div>
+            <div className="text-xs text-ink-2">
+              {well.id === referenceWellId
+                ? "Formation at bit: "
+                : `Reference pick (${referenceWellId} offset): `}
+              <span className="font-medium text-ink">
+                {referenceFormation?.name ?? `Not covered by ${referenceWellId}`}
+              </span>
+            </div>
+
             {well.id !== referenceWellId && (
-              <div className="mt-1 text-[8px] text-amber-200/90">
-                Stratigraphy and events shown belong to {referenceWellId}. No source-backed picks exist for {well.id} in this dataset.
+              <div className="rounded-[4px] bg-status-moderate-soft border border-status-moderate/30 p-1.5 text-xs text-status-moderate">
+                Stratigraphy belongs to {referenceWellId}. No source-backed picks exist for {well.id}.
               </div>
             )}
-            <div className="mt-1 text-[8px] text-slate-300">Bit position · {Math.round(depth).toLocaleString()} m MD</div>
-            <div className="mt-1 text-[8px] text-slate-400">Rig/BHA schematic: derrick, top drive, mud pits, casing envelope.</div>
-            <div className="mt-1 text-[8px] text-amber-200">Cutaway pipe trace is offset for visibility; BHA/rig are schematic, dimensions not to scale.</div>
-            <div className="mt-2 border-t border-white/10 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-400">Operation</span>
-                {isPlaying && <span className="text-[7px] uppercase tracking-[0.1em] text-amber-300">toolbar playback active</span>}
+
+            <div className="text-xs text-ink-3">
+              Bit position: {Math.round(depth).toLocaleString("en-IN")} m MD (schematic BHA)
+            </div>
+
+            <div className="border-t border-line pt-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-ink">Operation mode</span>
+                {isPlaying && (
+                  <span className="text-xs font-medium text-status-moderate">Playback active</span>
+                )}
               </div>
-              <div role="group" aria-label="Simulated operation mode" className="mt-1 flex gap-1">
+              <div role="group" aria-label="Simulated operation mode" className="flex gap-1">
                 {([
                   ["drill", "Drill"],
                   ["trip", "Trip"],
@@ -1410,71 +1429,146 @@ export function SubsurfaceScene({ well, depth, isPlaying, verticalExaggeration, 
                     aria-pressed={operation === mode}
                     disabled={isPlaying && mode !== "hold"}
                     onClick={() => setOperation(mode)}
-                    className={`pointer-events-auto flex-1 rounded px-1 py-1 text-[8px] font-semibold uppercase tracking-[0.06em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 disabled:cursor-not-allowed disabled:opacity-40 ${
-                      operation === mode ? "bg-teal-400/25 text-teal-100 ring-1 ring-inset ring-teal-300/40" : "bg-white/[0.06] text-slate-300 hover:bg-white/10"
+                    className={`flex-1 rounded-[4px] border px-2 py-1 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40 ${
+                      operation === mode
+                        ? "bg-primary border-accent text-white"
+                        : "bg-surface border-line text-ink-2 hover:bg-surface-muted"
                     }`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
-              <p className="mt-1 text-[7px] leading-3 text-slate-500">
-            {operation === "trip"
-              ? "Tripping one stand at a time; reverses at hole limits."
-              : operation === "drill"
-                ? "Simulated ROP advance; stops at planned TD."
-                : "Drill to advance hole depth, trip to run stands in/out."}
+              <p className="mt-1.5 text-xs leading-normal text-ink-3">
+                {operation === "trip"
+                  ? "Tripping one stand at a time; reverses at hole limits."
+                  : operation === "drill"
+                  ? "Simulated ROP advance; stops at planned TD."
+                  : "Drill to advance depth, trip to run stands in/out."}
               </p>
             </div>
           </div>
         )}
       </div>
 
-      <aside aria-label="Reference formations and events" className="absolute right-3 top-3 z-10 w-[168px] overflow-hidden rounded-md border border-white/10 bg-[#101e25]/90 shadow-lg backdrop-blur sm:w-[190px]">
-        <div role="group" aria-label="Reference information" className="flex border-b border-white/10 p-1">
-          <button type="button" aria-pressed={referencePanel === "formations"} onClick={() => setReferencePanel("formations")} className={`flex flex-1 items-center justify-center gap-1 rounded px-1 py-1.5 text-[8px] font-semibold uppercase tracking-[0.08em] ${referencePanel === "formations" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}><Layers3 className="h-3 w-3" />Strata</button>
-          <button type="button" aria-pressed={referencePanel === "events"} onClick={() => setReferencePanel("events")} className={`flex flex-1 items-center justify-center gap-1 rounded px-1 py-1.5 text-[8px] font-semibold uppercase tracking-[0.08em] ${referencePanel === "events" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}><CircleDot className="h-3 w-3" />Events</button>
+      {/* Strata & Events panel (right) */}
+      <aside
+        aria-label="Reference formations and events"
+        className="absolute right-3 top-3 z-10 w-[210px] rounded-[6px] border border-line bg-surface p-2 text-ink shadow-[0_4px_16px_rgba(0,0,0,0.12)]"
+      >
+        <div role="group" aria-label="Reference information" className="flex border-b border-line pb-1.5 mb-2 gap-1">
+          <button
+            type="button"
+            aria-pressed={referencePanel === "formations"}
+            onClick={() => setReferencePanel("formations")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-[4px] px-2 py-1 text-xs font-medium transition ${
+              referencePanel === "formations"
+                ? "bg-surface-muted text-ink font-semibold border border-line"
+                : "text-ink-2 hover:text-ink"
+            }`}
+          >
+            <Layers3 className="h-3.5 w-3.5" />
+            Strata
+          </button>
+          <button
+            type="button"
+            aria-pressed={referencePanel === "events"}
+            onClick={() => setReferencePanel("events")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-[4px] px-2 py-1 text-xs font-medium transition ${
+              referencePanel === "events"
+                ? "bg-surface-muted text-ink font-semibold border border-line"
+                : "text-ink-2 hover:text-ink"
+            }`}
+          >
+            <CircleDot className="h-3.5 w-3.5" />
+            Events
+          </button>
         </div>
+
         {referencePanel === "formations" ? (
-          <div className="max-h-[235px] overflow-y-auto p-2">
-            <div className="mb-2 flex items-center gap-1.5 text-[8px] font-semibold uppercase tracking-[0.1em] text-teal-100"><Activity className="h-3 w-3" />WX-07 reference intervals</div>
-            <div className="space-y-1.5">
-              {formationIntervals.map((interval, index) => (
-                <div key={interval.name} className="flex items-center gap-2 text-[8px] leading-3 text-slate-200 sm:text-[9px]">
-                  <span className="h-2 w-2 shrink-0 rounded-[2px] ring-1 ring-white/20" style={{ backgroundColor: intervalColors[index % intervalColors.length] }} />
-                  <span className="min-w-0 flex-1 truncate">{interval.name}</span>
-                  <span className="shrink-0 tabular-nums text-slate-400">{interval.top}–{interval.bottom} m</span>
-                </div>
-              ))}
+          <div className="max-h-[260px] overflow-y-auto space-y-1.5 pr-1">
+            <div className="flex items-center gap-1 text-xs font-medium text-ink-3 pb-1 border-b border-line">
+              <Activity className="h-3.5 w-3.5 text-accent" />
+              <span>WX-07 reference intervals</span>
             </div>
+            {formationIntervals.map((interval, index) => {
+              const color = intervalColors[index % intervalColors.length];
+              return (
+                <div key={interval.name} className="flex items-center gap-2 text-xs text-ink leading-tight">
+                  <svg
+                    className="h-3 w-3 shrink-0 rounded-[2px] border border-line"
+                    data-scene-color={color}
+                  >
+                    <rect width="12" height="12" fill={color} />
+                  </svg>
+                  <span className="min-w-0 flex-1 truncate font-medium">{interval.name}</span>
+                  <span className="shrink-0 tabular-nums text-ink-3 text-xs">
+                    {interval.top}–{interval.bottom}m
+                  </span>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <div className="max-h-[235px] overflow-y-auto p-2">
-            <div className="mb-2 text-[8px] font-semibold uppercase tracking-[0.1em] text-amber-200">Historical WX-07 events</div>
-            <div className="space-y-1">
-              {referenceEvents.map((event) => (
-                <button key={event.id} type="button" onClick={() => onEventSelect(event)} className="flex w-full items-center gap-2 rounded px-1.5 py-1.5 text-left text-[8px] text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
-                  <span className={`h-2 w-2 shrink-0 rounded-full ${event.severity === "Critical" ? "bg-red-400" : event.type === "Mud Loss" ? "bg-amber-400" : "bg-yellow-200"}`} />
-                  <span className="min-w-0 flex-1 truncate">{event.type} · {event.depth} m</span>
-                  <span className="shrink-0 text-slate-400">{event.date.slice(5)}</span>
-                </button>
-              ))}
+          <div className="max-h-[260px] overflow-y-auto space-y-1 pr-1">
+            <div className="text-xs font-medium text-ink-3 pb-1 border-b border-line">
+              Historical WX-07 events
             </div>
-            <p className="mt-2 text-[7px] leading-3 text-slate-400">Select a row to open its source record. Reference events are not predictions.</p>
+            {referenceEvents.map((event) => (
+              <button
+                key={event.id}
+                type="button"
+                onClick={() => onEventSelect(event)}
+                className="flex w-full items-center gap-2 rounded-[4px] p-1 text-left text-xs text-ink hover:bg-surface-muted transition"
+              >
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${
+                    event.severity === "Critical"
+                      ? "bg-status-critical"
+                      : event.type === "Mud Loss"
+                      ? "bg-status-high"
+                      : "bg-status-moderate"
+                  }`}
+                />
+                <span className="min-w-0 flex-1 truncate">
+                  {event.type} · {event.depth}m
+                </span>
+                <span className="shrink-0 text-ink-3 tabular-nums">{event.date.slice(5)}</span>
+              </button>
+            ))}
+            <p className="mt-2 text-xs leading-normal text-ink-3 border-t border-line pt-1.5">
+              Click event to view precedent evidence.
+            </p>
           </div>
         )}
       </aside>
 
-      <div className="pointer-events-none absolute bottom-3 left-3 z-10 flex flex-wrap gap-2 rounded-md border border-white/10 bg-[#101e25]/85 px-2.5 py-2 text-[9px] text-slate-100 backdrop-blur">
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sky-400" />Down-string flow</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_8px_#75f2e1]" />Annular return flow</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#c8a978]" />Cuttings at bit</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full border border-[#9fd0de]" />Casing envelope (schematic)</span>
-        <span className="text-slate-400">Simulated flow during demo playback · not measured data</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-400" /><CircleDot className="h-2.5 w-2.5 text-amber-300" />Use Events inspector to open evidence</span>
-        <span className="hidden text-slate-400 sm:inline">Drag rotate · scroll zoom · right-drag pan</span>
+      {/* Bottom legend */}
+      <div className="pointer-events-none absolute bottom-3 left-3 z-10 flex flex-wrap items-center gap-3 rounded-[6px] border border-line bg-surface/95 px-3 py-1.5 text-xs text-ink-2 shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          Down-string flow
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[#5c9d94]" />
+          Annular return
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[#c8a978]" />
+          Cuttings
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full border border-line-strong" />
+          Casing envelope
+        </span>
+        <span className="text-ink-3">Simulated flow</span>
+        <span className="hidden sm:inline text-ink-3">· Drag to rotate · Scroll to zoom</span>
       </div>
-      <div className="pointer-events-none absolute bottom-3 right-3 z-10 max-w-[250px] rounded bg-black/55 px-2 py-1 text-right text-[8px] uppercase tracking-[0.1em] text-slate-200">Cutaway schematic · WX-07 depth bands · not geological surfaces</div>
+
+      <div className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-[4px] border border-line bg-surface/90 px-2 py-1 text-right text-xs text-ink-3">
+        Cutaway schematic · Reference depth bands
+      </div>
     </div>
   );
 }
+

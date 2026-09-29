@@ -1,21 +1,63 @@
-import { ArrowLeft } from "lucide-react";
+import React from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
-export function PageHeader({ title, subtitle, backHref }: { title: string; subtitle?: string; backHref?: string }) {
+interface PageHeaderProps {
+  title: string;
+  description?: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+  backHref?: string;
+  backLabel?: string;
+  tabs?: React.ReactNode;
+  className?: string;
+}
+
+export function PageHeader({
+  title,
+  description,
+  subtitle,
+  actions,
+  backHref,
+  backLabel = "Back",
+  tabs,
+  className = "",
+}: PageHeaderProps) {
+  const desc = description ?? subtitle;
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
-      <div>
-        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-sky-700">
-          {backHref ? (
-            <Link href={backHref} className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-1 text-slate-700 hover:bg-slate-50">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back
-            </Link>
-          ) : null}
+    <div className={`mb-5 pb-2 ${className}`}>
+      {backHref && (
+        <div className="mb-2">
+          <Link
+            href={backHref}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-3 hover:text-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-[4px] px-1 py-0.5"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 stroke-[1.75]" />
+            <span>{backLabel}</span>
+          </Link>
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {subtitle ? <p className="mt-2 text-sm text-slate-500">{subtitle}</p> : null}
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-semibold text-ink leading-tight">
+            {title}
+          </h1>
+          {desc && (
+            <p className="mt-1 text-sm text-ink-2 leading-relaxed max-w-3xl">
+              {desc}
+            </p>
+          )}
+        </div>
+
+        {actions && (
+          <div className="flex shrink-0 items-center gap-2 mt-2 sm:mt-0">
+            {actions}
+          </div>
+        )}
       </div>
+
+      {tabs && <div className="mt-4">{tabs}</div>}
     </div>
   );
 }

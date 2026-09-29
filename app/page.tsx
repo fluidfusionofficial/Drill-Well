@@ -12,16 +12,16 @@ export default function Page() {
   }, [router]);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f3f5f4] p-6 text-center">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">NWIS</p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-900">Opening the command center…</h1>
-        <p className="mt-2 text-sm text-slate-500">Nearby Wells Intelligence System</p>
+    <main className="grid min-h-screen place-items-center bg-canvas p-6 text-center">
+      <div className="max-w-md">
+        <p className="text-xs font-semibold text-ink-3">NWIS · Decision support</p>
+        <h1 className="mt-2 text-2xl font-semibold text-ink">Opening command center…</h1>
+        <p className="mt-2 text-sm text-ink-2">Nearby Wells Intelligence System for offset well operations</p>
         <Link
           href="/dashboard"
-          className="mt-5 inline-block rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-800"
+          className="mt-5 inline-block rounded-[6px] bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover"
         >
-          Go to dashboard
+          Open command center
         </Link>
       </div>
     </main>

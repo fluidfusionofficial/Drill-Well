@@ -1,4 +1,6 @@
-export type WellStatus = "Active" | "Monitor" | "Completed" | "Drilling Complete" | "Standby";
+import type { Provenance } from "./engineering/provenance.ts";
+
+export type WellStatus = "Active" | "Monitor" | "Completed" | "Drilling Complete" | "Standby" | "Producing" | "Suspended" | "Abandoned";
 
 export type Well = {
   id: string;
@@ -45,6 +47,8 @@ export type EventRecord = {
   sourcePage: string;
   confidence: "HIGH" | "MEDIUM" | "LOW";
   demo?: boolean;
+  origin?: "source" | "simulated";
+  provenance?: Provenance;
 };
 
 export type MudRecord = {
@@ -145,7 +149,7 @@ export const wells: Well[] = [
     spudDate: "2025-10-03",
     coordinates: { lat: 26.97, lng: 71.51 },
     formation: "Upper Carbonate",
-    currentDepth: 842,
+    currentDepth: 470,
     lastActivity: "Formation tracking",
     nearbyWells: 10,
   },

@@ -24,6 +24,10 @@ type NwisWorkspaceValue = {
   setSelectedWellId: Dispatch<SetStateAction<string>>;
   currentDepth: number;
   setCurrentDepth: Dispatch<SetStateAction<number>>;
+  radiusKm: number;
+  setRadiusKm: Dispatch<SetStateAction<number>>;
+  lookAheadM: number;
+  setLookAheadM: Dispatch<SetStateAction<number>>;
   selectedEvent?: EventRecord;
   setSelectedEventId: Dispatch<SetStateAction<string | null>>;
   ingestedDocuments: UploadedDocument[];
@@ -38,13 +42,20 @@ const NwisWorkspaceContext = createContext<NwisWorkspaceValue | null>(null);
 export function NwisWorkspaceProvider({ children }: { children: ReactNode }) {
   const [selectedWellId, setSelectedWellId] = useState(currentWell.id);
   const [currentDepth, setCurrentDepth] = useState(currentWell.currentDepth);
+  const [radiusKm, setRadiusKm] = useState(10);
+  const [lookAheadM, setLookAheadM] = useState(100);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [ingestedDocuments, setIngestedDocuments] = useState<UploadedDocument[]>([]);
   const [plannedWells, setPlannedWells] = useState<Well[]>([]);
+
   const selectedWell = useMemo(
-    () => plannedWells.find((well) => well.id === selectedWellId) ?? wells.find((well) => well.id === selectedWellId) ?? currentWell,
+    () =>
+      plannedWells.find((well) => well.id === selectedWellId) ??
+      wells.find((well) => well.id === selectedWellId) ??
+      currentWell,
     [plannedWells, selectedWellId],
   );
+
   const selectedEvent = useMemo(
     () => wellEvents.find((event) => event.id === selectedEventId),
     [selectedEventId],
@@ -57,8 +68,13 @@ export function NwisWorkspaceProvider({ children }: { children: ReactNode }) {
   const clearIngestedDocuments = useCallback(() => setIngestedDocuments([]), []);
 
   const ingestPlannedWell = useCallback((well: Well) => {
-    setPlannedWells((previous) => (previous.some((item) => item.id === well.id) ? previous.map((item) => (item.id === well.id ? well : item)) : [...previous, well]));
+    setPlannedWells((previous) =>
+      previous.some((item) => item.id === well.id)
+        ? previous.map((item) => (item.id === well.id ? well : item))
+        : [...previous, well],
+    );
     setSelectedWellId(well.id);
+    setCurrentDepth(well.currentDepth);
   }, []);
 
   const value = useMemo(
@@ -67,6 +83,10 @@ export function NwisWorkspaceProvider({ children }: { children: ReactNode }) {
       setSelectedWellId,
       currentDepth,
       setCurrentDepth,
+      radiusKm,
+      setRadiusKm,
+      lookAheadM,
+      setLookAheadM,
       selectedEvent,
       setSelectedEventId,
       ingestedDocuments,
@@ -75,7 +95,18 @@ export function NwisWorkspaceProvider({ children }: { children: ReactNode }) {
       plannedWells,
       ingestPlannedWell,
     }),
-    [selectedWell, currentDepth, selectedEvent, ingestedDocuments, plannedWells, ingestDocuments, clearIngestedDocuments, ingestPlannedWell],
+    [
+      selectedWell,
+      currentDepth,
+      radiusKm,
+      lookAheadM,
+      selectedEvent,
+      ingestedDocuments,
+      plannedWells,
+      ingestDocuments,
+      clearIngestedDocuments,
+      ingestPlannedWell,
+    ],
   );
 
   return <NwisWorkspaceContext.Provider value={value}>{children}</NwisWorkspaceContext.Provider>;

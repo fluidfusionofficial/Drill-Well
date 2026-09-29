@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans } from "next/font/google";
 import { NwisWorkspaceProvider } from "@/components/nwis-workspace-context";
 import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "NWIS | Nearby Wells Intelligence System",
-  description: "Professional upstream drilling intelligence and historical well context platform prototype.",
+  description: "Standalone offset-well decision-support platform for drilling engineers.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -24,9 +22,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ibmPlexSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-slate-100 text-slate-900">
+      <body className="min-h-full bg-canvas text-ink">
         <NwisWorkspaceProvider>{children}</NwisWorkspaceProvider>
       </body>
     </html>

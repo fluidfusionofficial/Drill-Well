@@ -356,31 +356,53 @@ export function Planning3DGuidance({
   const formation = evaluateFormation(formationIntervals[0].name, plan.targetDepth).interval;
 
   return (
-    <div className="relative h-full min-h-[420px] w-full overflow-hidden rounded-2xl bg-[#0d1a20]">
-      <canvas ref={canvasRef} aria-label="3D placement guidance scene showing offset wells, proposed well path and target radius" className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing" />
+    <div className="relative h-full min-h-[420px] w-full overflow-hidden rounded-[6px] bg-[#0d1a20]">
+      <canvas
+        ref={canvasRef}
+        aria-label="3D placement guidance scene showing offset wells, proposed well path and target radius"
+        className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
+      />
       {unavailable && (
-        <div role="status" className="absolute inset-0 grid place-items-center bg-[#0d1a20] px-6 text-center text-sm text-slate-200">
+        <div
+          role="status"
+          className="absolute inset-0 grid place-items-center bg-[#0d1a20] px-6 text-center text-sm text-ink-3"
+        >
           This browser does not support WebGL. Use the plan view and the check list to evaluate the site.
         </div>
       )}
 
-      <div className="pointer-events-none absolute left-3 top-3 max-w-[260px] rounded-lg border border-white/10 bg-[#0d1a20]/85 px-3 py-2 text-[10px] text-slate-200 backdrop-blur">
-        <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-300">3D placement guidance</div>
-        <div className="mt-1.5 space-y-1">
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-400" />Proposed path and target radius</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sky-400" />Offset wellbore and depth</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" />{ANTI_COLLISION_M} m keep-out cylinder</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-400" />Anti-collision conflict</span>
+      <div className="pointer-events-none absolute left-3 top-3 max-w-[280px] rounded-[6px] border border-line bg-surface p-3 text-xs text-ink shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+        <div className="text-xs font-semibold text-ink">3D placement guidance</div>
+        <div className="mt-2 space-y-1.5">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            Proposed path and target radius
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-status-ok" />
+            Offset wellbore and depth
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-status-high" />
+            {ANTI_COLLISION_M} m keep-out cylinder
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-status-critical" />
+            Anti-collision conflict
+          </span>
         </div>
-        <div className="mt-2 border-t border-white/10 pt-1.5 text-slate-400">
-          Target zone: {formation?.name ?? "outside reference picks"} · TD {plan.targetDepth} m
+        <div className="mt-2.5 border-t border-line pt-2 text-xs text-ink-3">
+          Target zone: {formation?.name ?? "Outside reference picks"} · TD {plan.targetDepth} m
         </div>
-        <div className="text-slate-400">Surface offset from nearest: {(clearances[0] ? distanceKm(site, clearances[0].well.coordinates) : 0).toFixed(2)} km</div>
+        <div className="text-xs text-ink-3">
+          Surface offset from nearest: {(clearances[0] ? distanceKm(site, clearances[0].well.coordinates) : 0).toFixed(2)} km
+        </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-lg border border-white/10 bg-[#0d1a20]/85 px-2.5 py-1.5 text-[9px] text-slate-300 backdrop-blur">
-        Drag orbit · scroll zoom · right-drag pan
+      <div className="pointer-events-none absolute bottom-3 left-3 rounded-[4px] border border-line bg-surface/90 px-2.5 py-1.5 text-xs text-ink-2">
+        Drag to orbit · Scroll to zoom · Right-drag to pan
       </div>
     </div>
   );
 }
+

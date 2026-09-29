@@ -193,8 +193,8 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
   const casingWidth = compact ? "w-[20px]" : "w-[30px] xl:w-[40px]";
   const trackWidth = compact ? "w-[30px]" : "w-[44px] xl:w-[66px]";
   const eventsWidth = compact ? "w-[88px]" : "w-[112px] xl:w-[172px]";
-  const textXs = compact ? "text-[8px]" : "text-[11px]";
-  const textSm = compact ? "text-[7px]" : "text-[9px]";
+  const textXs = "text-xs";
+  const textSm = "text-xs";
   const headerHeight = compact ? "h-[16px]" : "h-[26px]";
 
   const cursorPct = Math.min(100, (currentDepth / maxDepth) * 100);
@@ -231,27 +231,27 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
       {/* Header row — every label on its own line, never clipped */}
       <div className={`flex shrink-0 items-stretch border-b border-slate-400 bg-slate-100 ${headerHeight}`}>
         <div className={`flex shrink-0 items-center justify-center border-r border-slate-300 ${axisWidth}`}>
-          <span className={`${textXs} font-bold uppercase tracking-[0.1em] text-slate-600`}>MD</span>
+          <span className={`${textXs} font-bold font-medium text-slate-600`}>MD</span>
         </div>
         <div className="flex min-w-0 flex-1 items-center gap-1 border-r border-slate-300 px-1.5">
-          <Layers3 className={`${compact ? "h-2.5 w-2.5" : "h-3.5 w-3.5"} shrink-0 text-[#4f7a6b]`} />
-          <span className={`${textXs} truncate font-bold uppercase tracking-[0.08em] text-slate-700`}>Lithology</span>
+          <Layers3 className={`${compact ? "h-2.5 w-2.5" : "h-3.5 w-3.5"} shrink-0 text-[#1D4ED8]`} />
+          <span className={`${textXs} truncate font-bold font-medium text-slate-700`}>Lithology</span>
           {!isReferenceOwner && (
             <span
-              className={`${textSm} shrink-0 rounded bg-slate-700 px-1 font-bold uppercase tracking-wide text-white`}
+              className={`${textSm} shrink-0 rounded bg-slate-700 px-1 font-bold font-medium text-white`}
               title={`Formation picks in this dataset belong to ${referenceWellId}. They are shown as offset reference and are not picks of ${selectedWell.id}.`}
             >
               {referenceWellId} ref
             </span>
           )}
           {hiddenClasses.size > 0 && (
-            <span className={`${textSm} shrink-0 rounded bg-amber-500/90 px-1 font-bold uppercase tracking-wide text-white`}>
+            <span className={`${textSm} shrink-0 rounded bg-status-moderate px-1 font-bold font-medium text-white`}>
               {hiddenClasses.size} class{hiddenClasses.size === 1 ? "" : "es"} muted
             </span>
           )}
         </div>
         <div className={`flex shrink-0 items-center justify-center border-r border-slate-300 ${casingWidth}`} title="Casing schematic">
-          <span className={`${textSm} font-bold uppercase tracking-[0.06em] text-slate-600`}>CAS</span>
+          <span className={`${textSm} font-bold font-medium text-slate-600`}>CAS</span>
         </div>
         {tracks.map((track) => {
           const isOn = !hiddenTracks.has(track.key);
@@ -267,18 +267,18 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
               >
                 {track.label}
               </span>
-              {!compact && <span className="text-[7px] text-slate-500">{track.unit}</span>}
+              {!compact && <span className="text-xs text-slate-500">{track.unit}</span>}
             </div>
           );
         })}
         <div className={`flex shrink-0 items-center justify-between gap-1 border-l border-slate-300 px-1 ${eventsWidth}`}>
           <span
-            className={`${textSm} shrink-0 font-bold uppercase tracking-[0.06em] text-slate-600`}
+            className={`${textSm} shrink-0 font-bold font-medium text-slate-600`}
             title={`Events shown are those recorded on ${referenceWellId}. No events are recorded for ${selectedWell.id} in this dataset.`}
           >
             Events · {referenceWellId}
           </span>
-          <span className={`shrink-0 rounded-sm bg-sky-900 px-1 font-bold tabular-nums leading-none text-white ${compact ? "text-[7px]" : "text-[10px]"}`} title="Shared depth cursor">
+          <span className={`shrink-0 rounded-sm bg-sky-900 px-1 font-bold tabular-nums leading-none text-white ${compact ? "text-xs" : "text-xs"}`} title="Shared depth cursor">
             {currentDepth} m
           </span>
         </div>
@@ -311,7 +311,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
             <div key={depth} className="absolute inset-x-0 flex items-center" style={{ top: `${(depth / maxDepth) * 100}%` }}>
               {depth % 200 === 0 ? (
                 <>
-                  <span className="ml-1 shrink-0 text-[8px] font-medium tabular-nums leading-none text-slate-600">{depth}</span>
+                  <span className="ml-1 shrink-0 text-xs font-medium tabular-nums leading-none text-slate-600">{depth}</span>
                   <span className="ml-auto mr-1 h-px w-1.5 bg-slate-400" />
                 </>
               ) : (
@@ -376,7 +376,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
             <div key={run.label} className="absolute inset-x-[2px]" style={{ top: `${(run.top / maxDepth) * 100}%`, height: `${((run.bottom - run.top) / maxDepth) * 100}%` }}>
               <div className="h-full w-full" style={{ background: "#cbd5e1", boxShadow: `inset 2px 0 0 ${run.color}, inset -2px 0 0 ${run.color}, inset 0 0 0 1px rgb(51 65 85 / 0.45)` }} />
               <div className="absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-slate-600" title={`${run.label} casing shoe at ${run.bottom} m`} />
-              {compact && <span className="absolute left-1/2 top-1 -translate-x-1/2 text-[6px] font-bold text-slate-700">{run.label}</span>}
+              {compact && <span className="absolute left-1/2 top-1 -translate-x-1/2 text-xs font-bold text-slate-700">{run.label}</span>}
             </div>
           ))}
           <div
@@ -388,7 +388,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
             }}
           />
           <div className="absolute inset-x-0 border-t-2 border-slate-800" style={{ top: `${tdPct}%` }}>
-            <span className={`absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-slate-800 px-0.5 font-bold leading-none text-white ${compact ? "text-[5px]" : "text-[7px]"}`}>TD</span>
+            <span className={`absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-slate-800 px-0.5 font-bold leading-none text-white ${compact ? "text-xs" : "text-xs"}`}>TD</span>
           </div>
         </div>
 
@@ -424,7 +424,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
                   <span
                     key={pick.depth}
                     title={`WCR mud record · ${pick.value.toFixed(2)} g/cm³ at ${pick.depth} m`}
-                    className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-white bg-slate-900"
+                    className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-white bg-surface text-ink"
                     style={{ left: `${((pick.value - track.min) / (track.max - track.min)) * 100}%`, top: `${(pick.depth / maxDepth) * 100}%` }}
                   />
                 ))}
@@ -453,16 +453,16 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
                     setCurrentDepth(event.depth);
                     setSelectedEventId(event.id);
                   }}
-                  className="absolute left-0 right-0 flex items-center gap-1 border-b border-slate-200/70 px-1 text-left transition hover:bg-amber-50 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
+                  className="absolute left-0 right-0 flex items-center gap-1 border-b border-slate-200/70 px-1 text-left transition hover:bg-status-moderate-soft focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500"
                   style={{ top: `${top}%`, height: chipHeight, transform: "translateY(-1px)" }}
                   title={`${event.type} · ${event.depth} m · ${event.formation} · ${event.wellId} · ${event.source} ${event.sourcePage}`}
                 >
                   <TriangleAlert className={`h-2.5 w-2.5 shrink-0 ${isCritical ? "text-red-600" : "text-amber-600"}`} />
                   <span className="min-w-0 flex-1">
-                    <span className={`block truncate font-bold leading-tight text-slate-800 ${compact ? "text-[7px]" : "text-[10px]"}`}>{event.type}</span>
-                    {!compact && <span className="block truncate text-[8px] leading-tight text-slate-500">{event.formation}</span>}
+                    <span className={`block truncate font-bold leading-tight text-slate-800 ${compact ? "text-xs" : "text-xs"}`}>{event.type}</span>
+                    {!compact && <span className="block truncate text-xs leading-tight text-slate-500">{event.formation}</span>}
                   </span>
-                  <span className={`shrink-0 font-semibold tabular-nums text-slate-600 ${compact ? "text-[7px]" : "text-[9px]"}`}>{event.depth}m</span>
+                  <span className={`shrink-0 font-semibold tabular-nums text-slate-600 ${compact ? "text-xs" : "text-xs"}`}>{event.depth}m</span>
                 </button>
               </div>
             );
@@ -471,7 +471,7 @@ function DepthComposite({ density, tracks, filters }: { density: Density; tracks
 
         {/* Planned TD */}
         <div className="pointer-events-none absolute inset-x-0 z-20 border-t border-dashed border-slate-500" style={{ top: `${(selectedWell.targetDepth / maxDepth) * 100}%` }}>
-          <span className={`absolute left-1 top-0 -translate-y-1/2 rounded-sm bg-slate-600 px-1 font-bold uppercase leading-none tracking-wide text-white ${compact ? "text-[6px]" : "text-[8px]"}`}>
+          <span className={`absolute left-1 top-0 -translate-y-1/2 rounded-sm bg-slate-600 px-1 font-bold uppercase leading-none tracking-wide text-white ${compact ? "text-xs" : "text-xs"}`}>
             Planned TD {selectedWell.targetDepth} m
           </span>
         </div>
@@ -501,9 +501,9 @@ function Legend({
   const compact = density === "compact";
   const { hiddenClasses, hiddenTracks } = filters;
   return (
-    <div className={`flex shrink-0 flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-slate-300 bg-slate-50 px-2 py-1 text-slate-700 ${compact ? "text-[8px]" : "text-[10px]"}`}>
+    <div className={`flex shrink-0 flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-slate-300 bg-slate-50 px-2 py-1 text-slate-700 ${compact ? "text-xs" : "text-xs"}`}>
       <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-slate-800">
-        <Layers3 className="h-3 w-3 text-[#4f7a6b]" />
+        <Layers3 className="h-3 w-3 text-[#1D4ED8]" />
         Filter lithology
       </span>
       {legendOrder.map((key) => {
@@ -564,10 +564,10 @@ function Legend({
       )}
       <span className="ml-auto hidden shrink-0 items-center gap-2.5 whitespace-nowrap text-slate-500 lg:inline-flex">
         <span className="inline-flex items-center gap-1"><Waves className="h-3 w-3" />MW ◆ = WCR records</span>
-        <span className="inline-flex items-center gap-1"><Activity className="h-3 w-3 text-teal-700" />others simulated</span>
+        <span className="inline-flex items-center gap-1"><Activity className="h-3 w-3 text-accent" />others simulated</span>
         <span className="inline-flex items-center gap-1"><Ruler className="h-3 w-3 text-amber-700" />casing schematic</span>
         <span className="inline-flex items-center gap-1"><Crosshair className="h-3 w-3 text-sky-900" />click column to set depth</span>
-        <span className="font-semibold uppercase tracking-[0.08em]">Not a measured log</span>
+        <span className="font-semibold font-medium">Not a measured log</span>
       </span>
     </div>
   );
@@ -581,8 +581,8 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
     <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-slate-50">
       <section className="border-b border-slate-200 p-3">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">At cursor</h3>
-          <span className="rounded bg-sky-900 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-white">{currentDepth} m MD</span>
+          <h3 className="text-xs font-bold font-medium text-slate-500">At cursor</h3>
+          <span className="rounded bg-sky-900 px-1.5 py-0.5 text-xs font-bold tabular-nums text-white">{currentDepth} m MD</span>
         </div>
         {cursorFormation ? (
           <div className="mt-2 rounded-md border border-slate-300 bg-white p-2.5">
@@ -593,10 +593,10 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
               />
               <div className="min-w-0">
                 <div className="truncate text-sm font-bold text-slate-900">{cursorFormation.name}</div>
-                <div className="mt-0.5 text-[10px] leading-tight text-slate-600">{cursorFormation.lithology}</div>
+                <div className="mt-0.5 text-xs leading-tight text-slate-600">{cursorFormation.lithology}</div>
               </div>
             </div>
-            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-[10px]">
+            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-xs">
               {[
                 ["Top", `${cursorFormation.top} m`],
                 ["Base", `${cursorFormation.bottom} m`],
@@ -618,15 +618,15 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
             </dl>
           </div>
         ) : (
-          <p className="mt-2 rounded-md border border-slate-300 bg-white p-2.5 text-[10px] text-slate-500">Cursor is above the shallowest reference pick.</p>
+          <p className="mt-2 rounded-md border border-slate-300 bg-white p-2.5 text-xs text-slate-500">Cursor is above the shallowest reference pick.</p>
         )}
       </section>
 
       <section className="border-b border-slate-200 p-3">
-        <h3 className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">Reference intervals · WX-07</h3>
-        <table className="mt-2 w-full text-left text-[10px]">
+        <h3 className="text-xs font-bold font-medium text-slate-500">Reference intervals · WX-07</h3>
+        <table className="mt-2 w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-slate-300 text-[9px] uppercase tracking-wide text-slate-500">
+            <tr className="border-b border-slate-300 text-xs font-medium text-slate-500">
               <th className="py-1 pr-1 font-semibold">Unit</th>
               <th className="py-1 pr-1 font-semibold">Depth</th>
               <th className="py-1 font-semibold">Source</th>
@@ -643,7 +643,7 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
                       <span className="h-4 w-2.5 shrink-0 rounded-[2px] ring-1 ring-slate-600/40" style={{ backgroundImage: texture.image, backgroundSize: texture.size }} />
                       <span className="min-w-0">
                         <span className="block truncate font-semibold text-slate-800">{interval.name}</span>
-                        <span className="block truncate text-[9px] text-slate-500">{interval.lithology}</span>
+                        <span className="block truncate text-xs text-slate-500">{interval.lithology}</span>
                       </span>
                     </span>
                   </td>
@@ -662,10 +662,10 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
       </section>
 
       <section className="border-b border-slate-200 p-3">
-        <h3 className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">Mud records · WCR fixture</h3>
-        <table className="mt-2 w-full text-left text-[10px]">
+        <h3 className="text-xs font-bold font-medium text-slate-500">Mud records · WCR fixture</h3>
+        <table className="mt-2 w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-slate-300 text-[9px] uppercase tracking-wide text-slate-500">
+            <tr className="border-b border-slate-300 text-xs font-medium text-slate-500">
               <th className="py-1 pr-1 font-semibold">Date</th>
               <th className="py-1 pr-1 font-semibold">Depth</th>
               <th className="py-1 pr-1 font-semibold">MW</th>
@@ -688,30 +688,30 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
       </section>
 
       <section className="p-3">
-        <h3 className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">Historical events · WX-07</h3>
+        <h3 className="text-xs font-bold font-medium text-slate-500">Historical events · WX-07</h3>
         <ul className="mt-2 space-y-1.5">
           {referenceEvents.map((event) => (
             <li key={event.id}>
               <button
                 type="button"
                 onClick={() => onPickEvent(event.id, event.depth)}
-                className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-left transition hover:border-amber-400 hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-left transition hover:border-amber-400 hover:bg-status-moderate-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="flex min-w-0 items-center gap-1.5">
                     <TriangleAlert className={`h-3 w-3 shrink-0 ${event.severity === "Critical" || event.severity === "High" ? "text-red-600" : "text-amber-600"}`} />
-                    <span className="truncate text-[10px] font-bold text-slate-800">{event.type}</span>
+                    <span className="truncate text-xs font-bold text-slate-800">{event.type}</span>
                   </span>
-                  <span className="shrink-0 text-[10px] font-semibold tabular-nums text-slate-600">{event.depth} m</span>
+                  <span className="shrink-0 text-xs font-semibold tabular-nums text-slate-600">{event.depth} m</span>
                 </span>
-                <span className="mt-0.5 block text-[9px] text-slate-500">
+                <span className="mt-0.5 block text-xs text-slate-500">
                   {event.formation} · {event.date} · {event.source} {event.sourcePage}
                 </span>
               </button>
             </li>
           ))}
         </ul>
-        <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-2 text-[9px] leading-4 text-amber-900">
+        <p className="mt-3 rounded-md border border-amber-300 bg-status-moderate-soft p-2 text-xs leading-4 text-amber-900">
           Prototype composite. Casing depths are schematic, ROP/WOB/TQ/SPP/CAL are simulated, and WX-07 events are historical reference — none of it is a prediction for {selectedWell.id}.
         </p>
       </section>
@@ -721,8 +721,8 @@ function EngineeringSidebar({ onPickEvent, hiddenClasses }: { onPickEvent: (even
 
 function ConfidenceBadge({ confidence }: { confidence: string }) {
   const tone =
-    confidence === "HIGH" ? "bg-emerald-100 text-emerald-700" : confidence === "MEDIUM" ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700";
-  return <span className={`ml-1 rounded px-1 text-[8px] font-bold ${tone}`}>{confidence}</span>;
+    confidence === "HIGH" ? "bg-status-ok-soft text-status-ok" : confidence === "MEDIUM" ? "bg-status-moderate-soft text-status-moderate" : "bg-status-critical-soft text-status-critical";
+  return <span className={`ml-1 rounded px-1 text-xs font-bold ${tone}`}>{confidence}</span>;
 }
 
 export function FormationDepthView() {
@@ -780,7 +780,7 @@ export function FormationDepthView() {
               onClick={() => setExpanded(true)}
               title="Enlarge depth composite (all tracks + full detail)"
               aria-label="Enlarge depth composite view"
-              className="absolute right-1.5 top-[19px] z-40 inline-flex items-center gap-1 rounded border border-slate-400 bg-white/95 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.06em] text-slate-700 shadow-sm transition hover:bg-sky-50 hover:text-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"
+              className="absolute right-1.5 top-[19px] z-40 inline-flex items-center gap-1 rounded border border-slate-400 bg-white/95 px-1.5 py-0.5 text-xs font-bold font-medium text-slate-700 shadow-sm transition hover:bg-sky-50 hover:text-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"
             >
               <Expand className="h-2.5 w-2.5" />
               Enlarge
@@ -799,21 +799,21 @@ export function FormationDepthView() {
       {compactView}
       {expanded &&
         createPortal(
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/75 p-2 backdrop-blur-sm sm:p-4" role="dialog" aria-modal="true" aria-label="Enlarged depth composite">
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-2  sm:p-4" role="dialog" aria-modal="true" aria-label="Enlarged depth composite">
             <button type="button" aria-label="Close enlarged view" onClick={() => setExpanded(false)} className="absolute inset-0 cursor-default" />
-            <div className="relative flex h-[96vh] w-full max-w-[1680px] flex-col overflow-hidden rounded-xl border border-slate-500/60 bg-white shadow-2xl">
-              <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b-2 border-slate-800 bg-slate-900 px-3 py-2 text-white sm:px-4">
+            <div className="relative flex h-[96vh] w-full max-w-[1680px] flex-col overflow-hidden rounded-[6px] border border-slate-500/60 bg-white shadow-2xl">
+              <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b-2 border-line bg-surface text-ink px-3 py-2 text-white sm:px-4">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-teal-300">
+                  <div className="flex items-center gap-2 text-xs font-bold font-medium text-accent">
                     <Layers3 className="h-3.5 w-3.5 shrink-0" />
                     Oil India Ltd · NWIS
                   </div>
                   <h2 className="mt-0.5 truncate text-sm font-bold sm:text-base">Depth &amp; Historical Context Composite</h2>
-                  <p className="truncate text-[10px] text-slate-300">
+                  <p className="truncate text-xs text-slate-300">
                     {selectedWell.id} · {selectedWell.formation} · reference picks from WX-07
                   </p>
                 </div>
-                <dl className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 text-[9px] leading-tight">
+                <dl className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 text-xs leading-tight">
                   {[
                     ["Total depth", `${selectedWell.actualDepth} m`],
                     ["Planned TD", `${selectedWell.targetDepth} m`],
@@ -821,15 +821,15 @@ export function FormationDepthView() {
                     ["Scale", "0–1200 m MD"],
                   ].map(([label, value]) => (
                     <div key={label} className="min-w-0">
-                      <dt className="uppercase tracking-[0.1em] text-slate-400">{label}</dt>
-                      <dd className="text-[11px] font-bold tabular-nums text-white">{value}</dd>
+                      <dt className="font-medium text-slate-400">{label}</dt>
+                      <dd className="text-xs font-bold tabular-nums text-white">{value}</dd>
                     </div>
                   ))}
                 </dl>
                 <button
                   type="button"
                   onClick={() => setExpanded(false)}
-                  className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-md border border-white/25 bg-white/10 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                  className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-md border border-white/25 bg-white/10 px-2.5 py-1.5 text-xs font-bold font-medium transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <Minimize2 className="h-3.5 w-3.5" />
                   Close

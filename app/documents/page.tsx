@@ -1,13 +1,28 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, FileSpreadsheet, FileText, FileType2, Loader2, Scan, Table2, Trash2, UploadCloud, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileSpreadsheet,
+  FileText,
+  FileType2,
+  Loader2,
+  Scan,
+  Table2,
+  Trash2,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import { AppShell } from "@/components/layout-shell";
 import { PageHeader } from "@/components/page-header";
 import { useNwisWorkspace } from "@/components/nwis-workspace-context";
 import { documents } from "@/lib/nwis-data";
 import { parseDocumentFile } from "@/lib/document-parser";
 import type { ParsedDocument } from "@/lib/document-parser";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { ProvenanceChip } from "@/components/ui/ProvenanceChip";
 
 const ACCEPT = ".pdf,.xlsx,.xls,.csv,.tsv,.docx,.txt,.md,.tif,.tiff,.png,.jpg,.jpeg";
 
@@ -18,18 +33,14 @@ const kindIcon = (kind: ParsedDocument["kind"]) => {
   return FileText;
 };
 
-const statusTone: Record<string, string> = {
-  Validated: "bg-emerald-100 text-emerald-700",
-  Prototype: "bg-sky-100 text-sky-700",
-  Pending: "bg-amber-100 text-amber-700",
-};
-
 export default function DocumentsPage() {
   const { ingestedDocuments, ingestDocuments, clearIngestedDocuments } = useNwisWorkspace();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState<{ name: string; index: number; total: number } | null>(null);
+  const [progress, setProgress] = useState<{ name: string; index: number; total: number } | null>(
+    null,
+  );
   const [openId, setOpenId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +57,11 @@ export default function DocumentsPage() {
         try {
           parsed.push(await parseDocumentFile(file));
         } catch (parseError) {
-          setError(`${file.name}: ${parseError instanceof Error ? parseError.message : "could not be read"}`);
+          setError(
+            `${file.name}: ${
+              parseError instanceof Error ? parseError.message : "could not be read"
+            }`,
+          );
         }
       }
 
@@ -55,7 +70,10 @@ export default function DocumentsPage() {
           parsed.map((item) => ({
             id: item.id,
             name: item.name,
-            kind: item.kind === "Word" || item.kind === "Text" || item.kind === "Other" ? "PDF" : (item.kind as "WCR" | "DDR" | "Excel" | "PDF" | "Scan"),
+            kind:
+              item.kind === "Word" || item.kind === "Text" || item.kind === "Other"
+                ? "PDF"
+                : (item.kind as "WCR" | "DDR" | "Excel" | "PDF" | "Scan"),
             wellId: item.wellId,
             date: item.date,
             status: item.warnings.length === 0 ? "Validated" : "Pending",
@@ -82,10 +100,13 @@ export default function DocumentsPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <PageHeader title="Document Intelligence Center" subtitle="Prototype extraction and normalization workflow for well reports and daily drilling records." />
+      <div className="space-y-4">
+        <PageHeader
+          title="Document intelligence center"
+          description="In-browser parsing and structured field extraction from well completion reports (WCR) and daily drilling records (DDR)."
+        />
 
-        {/* Upload */}
+        {/* Upload Zone */}
         <div
           onDragOver={(event) => {
             event.preventDefault();
@@ -97,20 +118,30 @@ export default function DocumentsPage() {
             setDragging(false);
             void handleFiles(event.dataTransfer.files);
           }}
-          className={`rounded-3xl border-2 border-dashed bg-white p-6 shadow-sm transition ${isDragging ? "border-sky-500 bg-sky-50/70" : "border-slate-300"}`}
+          className={`rounded-[6px] border-2 border-dashed p-5 transition ${
+            isDragging
+              ? "border-accent bg-primary-soft/40"
+              : "border-line-strong bg-surface hover:border-line"
+          }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3 text-slate-700">
-              <span className={`grid h-11 w-11 place-items-center rounded-2xl ${busy ? "bg-sky-100" : "bg-sky-50"}`}>
-                {busy ? <Loader2 className="h-5 w-5 animate-spin text-sky-700" /> : <UploadCloud className="h-5 w-5 text-sky-700" />}
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-[4px] bg-primary-soft text-accent shrink-0">
+                {busy ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <UploadCloud className="h-5 w-5" />
+                )}
               </span>
               <div>
-                <div className="text-lg font-medium">Upload document set</div>
-                <div className="mt-0.5 text-sm text-slate-500">
-                  Drop files or browse · PDF · Excel · Word · CSV · TXT · scans — parsed in your browser, nothing is uploaded to a server
+                <div className="text-sm font-semibold text-ink">Upload operational documents</div>
+                <div className="mt-0.5 text-xs text-ink-3">
+                  Drag and drop files or browse · PDF · Excel · Word · CSV · TXT · client-side
+                  browser parse
                 </div>
               </div>
             </div>
+
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -123,118 +154,136 @@ export default function DocumentsPage() {
                   event.target.value = "";
                 }}
               />
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="sm"
                 disabled={busy}
                 onClick={() => inputRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+                {busy ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <UploadCloud className="h-4 w-4 mr-1" />
+                )}
                 Choose files
-              </button>
+              </Button>
               {ingestedDocuments.length > 0 && (
-                <button
-                  type="button"
-                  onClick={clearIngestedDocuments}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear
-                </button>
+                <Button variant="secondary" size="sm" onClick={clearIngestedDocuments}>
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  Clear session
+                </Button>
               )}
             </div>
           </div>
 
           {progress && (
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
-              <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+            <div className="mt-3 flex items-center gap-3 rounded-[4px] border border-accent/30 bg-primary-soft px-3 py-2 text-xs text-ink">
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
               <span className="min-w-0 flex-1 truncate">
                 Parsing {progress.name} ({progress.index}/{progress.total})
               </span>
-              <span className="h-1.5 w-32 overflow-hidden rounded-full bg-sky-200">
-                <span className="block h-full rounded-full bg-sky-600 transition-all" style={{ width: `${(progress.index / progress.total) * 100}%` }} />
+              <span className="h-1.5 w-28 overflow-hidden rounded-full bg-primary/20">
+                <span
+                  className="block h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${(progress.index / progress.total) * 100}%` }}
+                />
               </span>
             </div>
           )}
 
           {error && (
-            <p className="mt-3 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            <p className="mt-3 flex items-center gap-2 rounded-[4px] border border-status-critical/30 bg-status-critical-soft px-3 py-2 text-xs text-status-critical">
               <AlertCircle className="h-4 w-4 shrink-0" />
               {error}
             </p>
           )}
 
-          <p className="mt-4 text-xs leading-5 text-slate-500">
-            Pipeline: <span className="font-semibold text-slate-700">read bytes</span> → unzip (XLSX/DOCX) or inflate content streams (PDF) → extract text/table rows → normalise
-            fields (well, date, depth, mud weight, ROP, WOB) → validate → register in the workspace. Extraction is a prototype heuristic, not certified OCR.
+          <p className="mt-3 text-xs leading-normal text-ink-3">
+            Pipeline: Read bytes → parse document structure → extract table rows & fields (well,
+            date, depth, mud weight, hazards) → confidence scoring → workspace register.
           </p>
         </div>
 
         {/* Ingested this session */}
         {ingestedDocuments.length > 0 && (
-          <section>
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-              Ingested this session
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">{ingestedDocuments.length}</span>
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-ink">
+              <CheckCircle2 className="h-4 w-4 text-status-ok" />
+              <span>Ingested documents ({ingestedDocuments.length})</span>
             </div>
-            <div className="grid gap-4 lg:grid-cols-2">
+
+            <div className="grid gap-3 lg:grid-cols-2">
               {ingestedDocuments.map((doc) => {
                 const isOpen = openId === doc.id;
                 return (
-                  <div key={doc.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div
+                    key={doc.id}
+                    className="rounded-[6px] border border-line bg-surface p-3.5 text-ink"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-slate-900">{doc.name}</div>
-                        <div className="mt-0.5 text-xs text-slate-500">
+                        <div className="truncate text-xs font-semibold text-ink">{doc.name}</div>
+                        <div className="mt-0.5 text-xs text-ink-3">
                           {doc.kind} · {doc.wellId} · {doc.date}
                         </div>
                       </div>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone[doc.status]}`}>{doc.status}</span>
+                      <Badge variant={doc.status === "Validated" ? "ok" : "moderate"}>
+                        {doc.status}
+                      </Badge>
                     </div>
 
-                    <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+                    <dl className="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
                       {[
                         ["Size", doc.size],
                         ["Rows", String(doc.rows)],
                         ["Cols", String(doc.columns)],
-                        ["Units", String(doc.pages)],
+                        ["Pages", String(doc.pages)],
                       ].map(([label, value]) => (
-                        <div key={label} className="rounded-lg bg-slate-50 px-1 py-1.5">
-                          <dt className="text-[9px] uppercase tracking-wide text-slate-500">{label}</dt>
-                          <dd className="text-[12px] font-semibold tabular-nums text-slate-800">{value}</dd>
+                        <div key={label} className="rounded-[4px] bg-surface-muted px-1.5 py-1">
+                          <dt className="text-xs text-ink-3">{label}</dt>
+                          <dd className="text-xs font-semibold tabular-nums text-ink">{value}</dd>
                         </div>
                       ))}
                     </dl>
 
-                    <p className="mt-2 truncate font-mono text-[10px] text-slate-400" title={doc.parser}>
-                      {doc.parser}
+                    <p className="mt-2 truncate text-xs text-ink-3" title={doc.parser}>
+                      Parser: {doc.parser}
                     </p>
 
                     {doc.warnings.length > 0 && (
                       <ul className="mt-2 space-y-1">
                         {doc.warnings.map((warning) => (
-                          <li key={warning} className="flex items-start gap-1.5 text-[11px] text-amber-800">
+                          <li
+                            key={warning}
+                            className="flex items-start gap-1.5 text-xs text-status-high"
+                          >
                             <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-                            {warning}
+                            <span>{warning}</span>
                           </li>
                         ))}
                       </ul>
                     )}
 
                     {doc.fields.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1.5">
+                      <div className="mt-2.5 flex flex-wrap gap-1.5">
                         {doc.fields.map((field) => (
-                          <span key={field.label} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px]">
-                            <span className="font-semibold text-slate-500">{field.label}</span>
-                            <span className="font-bold text-slate-800">{field.value}</span>
-                            <span
-                              className={`text-[8px] font-bold uppercase ${
-                                field.confidence === "HIGH" ? "text-emerald-600" : field.confidence === "MEDIUM" ? "text-amber-600" : "text-rose-600"
-                              }`}
+                          <span
+                            key={field.label}
+                            className="inline-flex items-center gap-1 rounded-[3px] border border-line bg-surface-muted px-1.5 py-0.5 text-xs"
+                          >
+                            <span className="text-ink-3">{field.label}:</span>
+                            <span className="font-semibold text-ink">{field.value}</span>
+                            <Badge
+                              variant={
+                                field.confidence === "HIGH"
+                                  ? "ok"
+                                  : field.confidence === "MEDIUM"
+                                  ? "moderate"
+                                  : "neutral"
+                              }
                             >
                               {field.confidence}
-                            </span>
+                            </Badge>
                           </span>
                         ))}
                       </div>
@@ -243,21 +292,32 @@ export default function DocumentsPage() {
                     <button
                       type="button"
                       onClick={() => setOpenId(isOpen ? null : doc.id)}
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700 hover:text-sky-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-hover"
                     >
                       {isOpen ? <X className="h-3.5 w-3.5" /> : <Table2 className="h-3.5 w-3.5" />}
-                      {isOpen ? "Hide extracted data" : "Show extracted data"}
+                      {isOpen ? "Hide extracted data" : "Inspect extracted data"}
                     </button>
 
                     {isOpen && (
-                      <div className="mt-2 max-h-72 overflow-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
+                      <div className="mt-2 max-h-64 overflow-auto rounded-[4px] border border-line bg-surface-muted p-2 text-xs">
                         {doc.cells.length > 1 ? (
-                          <table className="w-full border-collapse text-left text-[10px]">
+                          <table className="w-full border-collapse text-left text-xs">
                             <tbody>
                               {doc.cells.slice(0, 40).map((row, rowIndex) => (
-                                <tr key={rowIndex} className={rowIndex === 0 ? "bg-slate-200/70 font-semibold" : "border-t border-slate-200"}>
+                                <tr
+                                  key={rowIndex}
+                                  className={
+                                    rowIndex === 0
+                                      ? "bg-line/40 font-semibold"
+                                      : "border-t border-line"
+                                  }
+                                >
                                   {row.slice(0, 8).map((cell, cellIndex) => (
-                                    <td key={cellIndex} className="max-w-[120px] truncate px-1.5 py-1 align-top text-slate-700" title={cell}>
+                                    <td
+                                      key={cellIndex}
+                                      className="max-w-[140px] truncate px-1.5 py-1 align-top text-ink"
+                                      title={cell}
+                                    >
                                       {cell}
                                     </td>
                                   ))}
@@ -266,7 +326,9 @@ export default function DocumentsPage() {
                             </tbody>
                           </table>
                         ) : (
-                          <pre className="whitespace-pre-wrap break-words font-mono text-[10px] leading-4 text-slate-700">{doc.preview || "No text layer extracted."}</pre>
+                          <pre className="whitespace-pre-wrap break-words text-xs leading-relaxed text-ink">
+                            {doc.preview || "No text layer extracted."}
+                          </pre>
                         )}
                       </div>
                     )}
@@ -277,24 +339,47 @@ export default function DocumentsPage() {
           </section>
         )}
 
-        {/* Fixture corpus */}
-        <section>
-          <div className="mb-3 text-sm font-semibold text-slate-800">
-            Reference corpus
-            <span className="ml-2 text-xs font-normal text-slate-500">sanitized fixture documents bundled with the prototype</span>
+        {/* Reference Corpus */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <div>
+              <h2 className="text-xs font-semibold text-ink">Reference document register</h2>
+              <p className="text-xs text-ink-3">
+                Verified Oil India well completion reports and daily drilling workbooks
+              </p>
+            </div>
+            <ProvenanceChip
+              source="Oil India master register"
+              recordCount={documents.length}
+              simulatedCount={0}
+            />
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {documents.map((doc) => {
               const Icon = kindIcon(doc.kind as ParsedDocument["kind"]);
               return (
-                <div key={doc.name} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <Icon className="h-5 w-5 text-sky-700" />
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-slate-700">{doc.status}</span>
+                <div
+                  key={doc.name}
+                  className="rounded-[6px] border border-line bg-surface p-3.5 text-ink hover:border-line-strong transition flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Icon className="h-4 w-4 text-accent" />
+                      <Badge variant={doc.status === "Validated" ? "ok" : "moderate"}>
+                        {doc.status}
+                      </Badge>
+                    </div>
+                    <div className="text-xs font-semibold text-ink leading-snug">{doc.name}</div>
+                    <div className="mt-1 text-xs text-ink-3">
+                      {doc.kind} · Well {doc.wellId}
+                    </div>
                   </div>
-                  <div className="mt-4 text-lg font-semibold text-slate-900">{doc.name}</div>
-                  <div className="mt-2 text-sm text-slate-500">{doc.kind} • {doc.wellId}</div>
-                  <div className="mt-3 text-sm text-slate-600">Pages: {doc.pages}</div>
+
+                  <div className="mt-3 flex items-center justify-between border-t border-line pt-2 text-xs text-ink-3">
+                    <span>{doc.pages} pages</span>
+                    <span className="tabular-nums">{doc.date}</span>
+                  </div>
                 </div>
               );
             })}
