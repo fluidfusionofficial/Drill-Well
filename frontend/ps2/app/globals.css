@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #F4F6F8;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F8F9FB;
+
+  --color-line: #E1E5EA;
+  --color-line-strong: #C8CED6;
+
+  --color-ink: #16202C;
+  --color-ink-2: #4A5565;
+  --color-ink-3: #667085;
+
+  --color-accent: #1D4ED8;
+  --color-accent-hover: #1E40AF;
+  --color-accent-soft: #EAF0FE;
+
+  --color-primary: #1D4ED8;
+  --color-primary-hover: #1E40AF;
+  --color-primary-soft: #EAF0FE;
+
+  --color-status-critical: #C62828;
+  --color-status-critical-soft: #FDECEC;
+  --color-status-high: #D9560B;
+  --color-status-high-soft: #FEF0E6;
+  --color-status-moderate: #A96F00;
+  --color-status-moderate-soft: #FBF3DC;
+  --color-status-ok: #2E7D32;
+  --color-status-ok-soft: #E8F4EA;
+
+  --color-hazard-mud-loss: #0072B2;
+  --color-hazard-stuck-pipe: #D55E00;
+  --color-hazard-kick: #B3261E;
+  --color-hazard-tight-hole: #7B4FBF;
+  --color-hazard-cementing: #9A6B00;
+  --color-hazard-other: #667085;
+
+  --font-sans: var(--font-sans), "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+:root {
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: #F4F6F8;
+  color: #16202C;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #F4F6F8;
+  color: #16202C;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Ensure tabular numbers on numeric displays */
+.tabular-nums,
+[data-tabular="true"],
+input[type="number"],
+table td,
+.kpi-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid #1D4ED8;
+  outline-offset: 2px;
+}
+
+/* Thin clean scrollbar */
+* {
+  box-sizing: border-box;
+  scrollbar-color: #C8CED6 transparent;
+  scrollbar-width: thin;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input[type="range"] {
+  accent-color: #1D4ED8;
+}
+
+::selection {
+  background: #EAF0FE;
+  color: #16202C;
+}
+
+/* Leaflet light map styles */
+.leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+  background: #F4F6F8;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #FFFFFF;
+  color: #16202C;
+  border: 1px solid #E1E5EA;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.4;
+  font-size: 12px;
+}
+
+.nwis-map-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* MapLibre GL light workstation styles */
+.maplibregl-map {
+  font-family: inherit;
+  background: #F4F6F8;
+}
+
+.maplibregl-popup-content {
+  background: #FFFFFF !important;
+  color: #16202C !important;
+  border: 1px solid #E1E5EA !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12) !important;
+  padding: 12px 14px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #FFFFFF !important;
+  border-bottom-color: #FFFFFF !important;
+}
+
+.maplibregl-ctrl-group {
+  background: #FFFFFF !important;
+  border: 1px solid #E1E5EA !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08) !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  border-bottom: 1px solid #E1E5EA !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.maplibregl-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+.maplibregl-ctrl-scale {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid #C8CED6 !important;
+  border-top: none !important;
+  color: #16202C !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 2px 6px !important;
+}
+

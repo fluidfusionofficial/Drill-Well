@@ -1,0 +1,39 @@
+# Sensitive / proprietary Oil India data
+Oil India ltd dataset/
+Fluidfusion_ProblemStatements.pdf.pdf
+NWIS_Software_Development_Master_Guiding_Manual.docx
+
+# Project instructions (internal)
+CLAUDE.md
+
+# Frontend build artifacts
+frontend/ps2/.next/
+frontend/ps2/out/
+frontend/ps2/node_modules/
+frontend/ps2/.vercel/
+frontend/ps2/tsconfig.tsbuildinfo
+frontend/ps2/next-env.d.ts
+frontend/ps2/*.zip
+
+# Backend artifacts
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+
+# Python / ML artifacts
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Playwright
+.playwright-mcp/

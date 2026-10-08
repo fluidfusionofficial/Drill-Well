@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env*.production
+.vercel
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# 142 MB stray archive — safe to delete from disk, but never commit it.
+eslint.config.zip
+
+# Redundant archive of this same project.
+project file.zip
