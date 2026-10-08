@@ -1,7 +1,7 @@
 /**
  * Well-specific data provider.
  *
- * The single most important rule in NWIS: records belong to a well.
+ * The single most important rule in Drill Well: records belong to a well.
  * A view of WX-11 must never silently display WX-07 formations or events.
  * Where a well has no source-backed record, the provider returns an explicit
  * unavailability marker instead of borrowing another well's data.

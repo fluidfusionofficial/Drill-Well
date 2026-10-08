@@ -180,7 +180,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {!isCollapsed && (
             <div className="flex items-center gap-2 min-w-0">
               <span className="font-semibold text-sm text-ink leading-none">
-                NWIS
+                Drill Well
               </span>
               <span className="rounded-[4px] border border-line bg-surface-muted px-1.5 py-0.5 text-xs text-ink-3">
                 Demo data
@@ -281,7 +281,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             />
             <div className="relative w-64 bg-surface shadow-xl flex flex-col">
               <div className="flex h-14 items-center justify-between border-b border-line px-4">
-                <span className="font-semibold text-sm text-ink">NWIS Menu</span>
+                <span className="font-semibold text-sm text-ink">Drill Well Menu</span>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
@@ -313,7 +313,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </button>
 
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-ink-3 min-w-0 truncate">
-                <span>NWIS</span>
+                <span>Drill Well</span>
                 <span className="text-line-strong">/</span>
                 <span>{breadcrumb.group}</span>
                 <span className="text-line-strong">/</span>

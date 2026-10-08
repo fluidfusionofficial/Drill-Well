@@ -1,14 +1,14 @@
-# NWIS (eRTMAC-NWIS) — Well Engineering Decision Support Platform
+# Drill Well (eRTMAC-Drill Well) — Well Engineering Decision Support Platform
 
 **Smart India Hackathon 2026 · Problem Statement 26121 · Oil India Limited (OIL)**
 
-Standalone operational decision-support workstation running alongside the eRTMAC real-time monitoring infrastructure. NWIS delivers deterministic institutional memory from offset (nearby, historical) wells to control-room engineers, drilling superintendents, and wellsite supervisors before operational hazards occur.
+Standalone operational decision-support workstation running alongside the eRTMAC real-time monitoring infrastructure. Drill Well delivers deterministic institutional memory from offset (nearby, historical) wells to control-room engineers, drilling superintendents, and wellsite supervisors before operational hazards occur.
 
 ---
 
 ## 1. System Architecture & Engineering Principles
 
-NWIS is designed with the ergonomics of a specialized well-engineering workstation (Petrel, Techlog, WellView class) rather than a promotional web dashboard:
+Drill Well is designed with the ergonomics of a specialized well-engineering workstation (Petrel, Techlog, WellView class) rather than a promotional web dashboard:
 - **Calm, High-Density Information Hierarchy:** Optimized for control-room monitors (1440–1920 px) and ruggedized site tablets. Visual weight is concentrated on the 3D subsurface spatial view and the depth-aligned offset correlation tracks.
 - **Honesty Layer (`app/lib/engineering/*`):** Zero simulated values presented as ground truth without clear provenance. Every depth, formation pick, and event carries an explicit extraction method, reference datum (MD vs TVD), and document citation.
 - **Deterministic Alert Engine (Level-1):** Historical context warnings explicitly phrase observations as *"recorded precedent, not a prediction"*, eliminating hallucinated or unsupported ML forecasts while drilling.

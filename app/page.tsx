@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <main className="grid min-h-screen place-items-center bg-canvas p-6 text-center">
       <div className="max-w-md">
-        <p className="text-xs font-semibold text-ink-3">NWIS · Decision support</p>
+        <p className="text-xs font-semibold text-ink-3">Drill Well · Decision support</p>
         <h1 className="mt-2 text-2xl font-semibold text-ink">Opening command center…</h1>
         <p className="mt-2 text-sm text-ink-2">Nearby Wells Intelligence System for offset well operations</p>
         <Link

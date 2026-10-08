@@ -13,7 +13,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "NWIS | Nearby Wells Intelligence System",
+  title: "Drill Well | Nearby Wells Intelligence System",
   description: "Standalone offset-well decision-support platform for drilling engineers.",
 };
 

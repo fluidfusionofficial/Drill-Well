@@ -1,6 +1,6 @@
 /**
  * Every derived engineering record must be traceable back to where it came from.
- * Nothing in NWIS is presented without a source.
+ * Nothing in Drill Well is presented without a source.
  */
 
 export type ExtractionMethod = "digital_text" | "table_extract" | "ocr" | "manual_entry" | "derived" | "simulated" | "rule_based" | "model_output";

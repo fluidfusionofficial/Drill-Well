@@ -1,5 +1,5 @@
 /**
- * Extended demonstration dataset for NWIS decision-support platform.
+ * Extended demonstration dataset for Drill Well decision-support platform.
  * Contains 12 offset wells within 30 km of WX-11, ~45 clustered operational events,
  * daily time-depth progression series, NPT breakdown by category, and mud weight profiles.
  *

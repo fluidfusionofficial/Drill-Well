@@ -806,7 +806,7 @@ export function FormationDepthView() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-xs font-bold font-medium text-accent">
                     <Layers3 className="h-3.5 w-3.5 shrink-0" />
-                    Oil India Ltd · NWIS
+                    Oil India Ltd · Drill Well
                   </div>
                   <h2 className="mt-0.5 truncate text-sm font-bold sm:text-base">Depth &amp; Historical Context Composite</h2>
                   <p className="truncate text-xs text-slate-300">
