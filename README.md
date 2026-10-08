@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/SIH_2026-Problem_26121-FF6B35?style=for-the-badge&labelColor=1a1a2e" alt="SIH 2026" />
-  <img src="https://img.shields.io/badge/Oil_India_Limited-Sponsor-0D7C66?style=for-the-badge&labelColor=1a1a2e" alt="OIL" />
+  <img src="https://img.shields.io/badge/Oil_India_Limited-Organizer-0D7C66?style=for-the-badge&labelColor=1a1a2e" alt="OIL" />
   <img src="https://img.shields.io/badge/Team-Fluid_Fusion-1D4ED8?style=for-the-badge&labelColor=1a1a2e" alt="Team" />
 </p>
 
@@ -315,7 +315,7 @@ pytest                                   # Backend: 5 test suites
 
 Built for **Smart India Hackathon 2026** · Problem Statement **SIH26121**  
 Category: **Software** · Theme: **Smart Automation**  
-Sponsoring Organization: **Oil India Limited (OIL)**
+Organization: **Oil India Limited (OIL)**
 
 ---
 
